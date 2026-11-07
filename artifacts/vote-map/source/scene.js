@@ -89,7 +89,7 @@ export function create(canvas, shapes, onFrame) {
     camera.aspect = w / h;
     camera.updateProjectionMatrix();
     view.w = w; view.h = h;
-    const top = w < 560 ? 0 : 44, foot = w < 560 ? 0 : 84, roomW = Math.max(0.2, (w - inset) / w), roomH = (h - top - foot) / h;
+    const top = w < 760 ? 0 : 44, foot = w < 760 ? 0 : 84, roomW = Math.max(0.2, (w - inset) / w), roomH = (h - top - foot) / h;
     const measure = (d, pts = sample, tx = 0, ty = 0, zTop = 44) => {
       camera.clearViewOffset();
       camera.position.set(tx, ty - Math.sin(TILT) * d, Math.cos(TILT) * d);

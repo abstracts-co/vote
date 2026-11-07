@@ -168,7 +168,8 @@ summary { cursor: pointer; padding: 11px 0; font-weight: 600; }
 details p { margin: 0 0 10px; font-size: 14px; }
 @media (hover: hover) and (pointer: fine) { .pick:hover b { text-decoration: underline; text-underline-offset: 2px; } .tab:hover { color: var(--text); } }
 @media (prefers-reduced-motion: reduce) { .card { transition: none; } }
-@media (max-width: 559px) {
+@media (hover: none) { .card { display: none; } }
+@media (max-width: 759px) {
   .bar { position: static; border-bottom: 1px solid var(--border); }
   .reset { top: 8px; }
   .tab { flex: 1; padding: 0 2px; font-size: 13px; }
@@ -179,7 +180,7 @@ details p { margin: 0 0 10px; font-size: 14px; }
   .stage { flex: none; width: 100%; }
   html.full .stage { aspect-ratio: 975 / 640; }
   html.full #app { overflow: auto; }
-  .card, .power { display: none; }
+  .power { display: none; }
   .win { position: static; width: 100%; max-width: none; border: 0; box-shadow: none; border-radius: 0; border-top: 1px solid var(--border); }
   .win .winbody { overflow: visible; }
   .btn, .pick { min-height: 44px; }
@@ -222,7 +223,7 @@ const BLURB = {
   governor: "The governor's seats on the ballot in 2028, and who holds each one.",
 };
 const TABS = [['now', 'Now'], ['president', 'President'], ['primaries', 'Primaries'], ['senate', 'Senate'], ['governor', 'Governor']];
-function phone0() { return matchMedia('(max-width: 559px)').matches; }
+function phone0() { return matchMedia('(max-width: 759px)').matches; }
 const partyKey = (p) => (p.party?.[0] === 'D' ? 'D' : p.party?.[0] === 'R' ? 'R' : 'O');
 const last = (n) => (/Van Hollen|Cortez Masto/.exec(n)?.[0] ?? n.replace(/ (Jr|Sr)\.?$/, '').split(' ').at(-1));
 const byState = (list) => Object.fromEntries(list.map((x) => [x.state, x]));
@@ -230,7 +231,7 @@ const senate = byState(DATA.senate), gov = byState(DATA.governors);
 const shape = Object.fromEntries(SHAPES.map((s) => [s.abbr, s]));
 const personNamed = (n) => DATA.people.find((p) => p.name === n);
 const ui = { tab: 'now', stack: phone0() ? [] : [{ kind: 'list' }], party: 'all', issue: '', hover: '' };
-const phone = () => matchMedia('(max-width: 559px)').matches;
+const phone = () => matchMedia('(max-width: 759px)').matches;
 const css = (name) => getComputedStyle(document.documentElement).getPropertyValue(name).trim();
 
 const openState = () => [...ui.stack].reverse().find((p) => p.kind === 'state')?.id ?? '';
@@ -523,15 +524,15 @@ const followCard = () => {
   if (Math.abs(goalX - cardX) + Math.abs(goalY - cardY) > 0.3) cardFrame = requestAnimationFrame(followCard);
 };
 const placeCard = (x, y, html, key = html) => {
-  if (phone()) return;
+  if (matchMedia('(hover: none)').matches) return;
   const stage = q('.stage'), card = q('.card'), box = stage.getBoundingClientRect(), wasOn = card.classList.contains('on');
   clearTimeout(hideTimer);
   if (key !== cardKey) { cardKey = key; card.innerHTML = html; cardW = card.offsetWidth; cardH = card.offsetHeight; }
   card.classList.add('on');
-  const free = box.width - (ui.stack.length ? 436 : 0), rx = x - box.left, ry = y - box.top;
+  const free = box.width - (ui.stack.length && !phone() ? 436 : 0), rx = x - box.left, ry = y - box.top;
   const left = rx + 20 + cardW > free - 8 ? rx - 20 - cardW : rx + 20;
   goalX = Math.max(8, Math.min(left, free - cardW - 8));
-  goalY = Math.max(52, Math.min(ry - 24, box.height - cardH - 8));
+  goalY = Math.max(phone() ? 8 : 52, Math.min(ry - 24, box.height - cardH - 8));
   if (!wasOn) { cardX = goalX; cardY = goalY; }
   if (!cardFrame) cardFrame = requestAnimationFrame(followCard);
 };

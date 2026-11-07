@@ -59,7 +59,7 @@ A wrong face is the worst mistake on the map. Confirm identity from a page that 
 
 ## UI standards
 
-- **The map is the page.** Everything else opens from it: hover shows a card, a click opens a window and zooms into counties, holding the mouse pans, and a reset button appears once the camera has moved. Keep it full screen and don't add a page of text.
+- **The map is the page.** Everything else opens from it: hover shows a card, a click opens a window and zooms into counties, holding the mouse pans, and a reset button appears once the camera has moved. It sits in place on the About page under the community header, like any artifact, and goes full screen only when someone presses Full screen. Never make it open itself, and don't add a page of text.
 - **Quick glance first.** Each section is a one-line takeaway, then a visual, with detail folded under `details`. No dense paragraphs in the first view. Only the one sentence per tab explains a view; add no other taglines, hint lines or secondary labels.
 - **Three groups in every state:** In office, Taking office, Running. Show all three, with "None found yet" when one is empty. Don't place presidential candidates on the map by home state.
 - **Every person** has a face, a lean bar and a page, and every name opens that page.
@@ -67,7 +67,7 @@ A wrong face is the worst mistake on the map. Confirm identity from a page that 
 - **Color:** use the CSS variables in `index.html`, never raw colors in markup. Blue is Democratic, red is Republican, amber is independent; darker means a wider margin. Use one hue for single-series bars and keep labels in text colors. Charts need a legend when they have two or more series.
 - **Accessibility:** text contrast of at least 4.5:1, focus states, tap targets of at least 44px on phones, and labels on icon-only buttons. Don't rely on hover alone: everything must work by tap and keyboard.
 - **Motion:** animate `transform` and `opacity` for UI, 300ms or less, and respect `prefers-reduced-motion`. Keep hover smooth: update a card only when its subject changes, and redraw shadows only when heights change.
-- **Phones first.** Below 560px the window sits under the map. Check 360px wide.
+- **Phones first.** Below 760px the window sits under the map. Check 360px wide.
 
 ## Sandbox limits
 

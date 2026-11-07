@@ -3,6 +3,5 @@
   "description": "Who is in office, who is taking office, who is running, what they stand for and how far left or right they lean.",
   "kind": "web",
   "entry": "index.html",
-  "poster": "preview.webp",
-  "display": "full"
+  "poster": "preview.webp"
 }
