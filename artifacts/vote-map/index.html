@@ -1,0 +1,640 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>2028 elections</title>
+<style>
+:root {
+  color-scheme: light dark;
+  --bg: #f5f2ec; --bg-2: #faf8f4; --surface: #ffffff; --text: #1c1b19; --text-2: #4a463f; --text-3: #6f695f;
+  --border: #e9e4da; --border-strong: #d6cfc2; --accent: #8f4c0e; --accent-fill: #d97a1e;
+  --land: #d6cfc2; --edge: #ffffff; --edge-hot: #1c1b19;
+  --i1: #f6d39f; --i2: #eeb25e; --i3: #d98a1f; --d1: #a2c4ea; --d2: #4f8fd6; --d3: #1f5fb4; --r1: #f1b5aa; --r2: #e0604c; --r3: #b4301f;
+  --shadow: 0 1px 2px rgb(28 27 25 / 0.08), 0 12px 32px rgb(28 27 25 / 0.18);
+  --sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #0e0e0d; --bg-2: #1b1b18; --surface: #1a1a18; --text: #eeebe4; --text-2: #bdb8ae; --text-3: #8a857b;
+    --border: #2c2b27; --border-strong: #3d3b34; --accent: #f6c38a; --accent-fill: #f0a04b;
+    --land: #33312c; --edge: #0e0e0d; --edge-hot: #ffffff;
+    --i1: #f3cf94; --i2: #e9a94c; --i3: #c97f18; --d1: #7fb0e6; --d2: #3f86d6; --d3: #1f5fb4; --r1: #f0a596; --r2: #e0604c; --r3: #b4301f;
+    --shadow: 0 1px 2px rgb(0 0 0 / 0.5), 0 14px 36px rgb(0 0 0 / 0.6);
+  }
+}
+* { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body { margin: 0; background: var(--bg); color: var(--text); font: 15px/1.4 var(--sans); }
+html.full, html.full body { height: 100%; overflow: hidden; }
+a { color: inherit; }
+button, select { font: inherit; color: inherit; }
+button { background: none; border: 0; padding: 0; cursor: pointer; -webkit-tap-highlight-color: transparent; }
+:focus-visible { outline: 2px solid var(--accent-fill); outline-offset: 2px; }
+.sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); }
+#app { position: relative; display: flex; flex-direction: column; }
+html.full #app { height: 100dvh; }
+.bar { position: absolute; z-index: 4; top: 0; left: 0; right: 0; display: flex; align-items: stretch; height: 44px; background: var(--bg); border-bottom: 1px solid var(--border); }
+.tab { padding: 0 13px; font-size: 14px; font-weight: 550; color: var(--text-3); box-shadow: inset 0 -2px 0 transparent; }
+.tab[aria-selected="true"] { color: var(--text); box-shadow: inset 0 -2px 0 var(--accent-fill); }
+.bar .gap { flex: 1; }
+.blurb { align-self: center; padding: 0 6px 0 12px; font-size: 13px; line-height: 1.25; color: var(--text-2); text-align: right; min-width: 0; }
+.icon { display: inline-grid; place-items: center; width: 44px; height: 44px; color: var(--text-2); }
+.icon svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+.stage { position: relative; flex: 1; min-height: 0; overflow: hidden; aspect-ratio: 975 / 640; background: radial-gradient(ellipse at 50% 42%, var(--bg-2), var(--bg) 72%); }
+html.full .stage { aspect-ratio: auto; }
+canvas.gl { position: absolute; inset: 0; width: 100%; height: 100%; display: block; cursor: grab; touch-action: pan-y; }
+canvas.gl.hot { cursor: pointer; }
+canvas.gl.dragging { cursor: grabbing; }
+.reset { position: absolute; z-index: 3; top: 52px; left: 8px; border-radius: 12px; background: var(--surface); border: 1px solid var(--border-strong); box-shadow: var(--shadow); }
+.reset[hidden] { display: none; }
+.tags { position: absolute; inset: 0; pointer-events: none; overflow: hidden; }
+.tag { position: absolute; left: 0; top: 0; white-space: nowrap; font-size: 12px; line-height: 14px; font-weight: 650; color: #fff; text-shadow: 0 0 3px rgb(0 0 0 / 0.85), 0 1px 2px rgb(0 0 0 / 0.75); will-change: transform; }
+.tag[data-person] { pointer-events: auto; cursor: pointer; }
+.tag.off { color: var(--text); text-shadow: 0 0 3px var(--bg), 0 0 3px var(--bg); }
+.power { position: absolute; z-index: 3; left: 12px; bottom: 12px; display: flex; gap: 18px; padding: 10px 14px; border-radius: 12px; background: var(--surface); border: 1px solid var(--border-strong); box-shadow: var(--shadow); text-align: left; }
+.res { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 1px 10px; padding: 8px 0; }
+.res + .res { border-top: 1px solid var(--border); }
+.res .who { font-size: 13px; color: var(--text-2); min-width: 0; }
+.res h3 { margin: 0; font-size: 13px; color: var(--text); }
+.linkname { font-weight: 600; text-decoration: underline; text-underline-offset: 2px; }
+h3.group { font-size: 14px; color: var(--text); margin-bottom: 4px; }
+.res .num { font-weight: 700; font-size: 14px; white-space: nowrap; }
+.res .num[data-p="D"] { color: var(--d3); } .res .num[data-p="R"] { color: var(--r3); }
+.lean { grid-column: 1 / -1; position: relative; display: block; height: 8px; margin-top: 5px; border-radius: 4px; background: var(--border); overflow: hidden; }
+.lean::after { content: ""; position: absolute; left: 50%; top: 0; bottom: 0; width: 2px; margin-left: -1px; background: var(--text-3); }
+.face { flex: none; display: inline-block; border-radius: 50%; background-image: url(faces.webp); background-repeat: no-repeat; box-shadow: 0 0 0 2px var(--text-3); align-self: center; }
+.face[data-p="D"] { box-shadow: 0 0 0 2px var(--d3); } .face[data-p="R"] { box-shadow: 0 0 0 2px var(--r3); }
+.face.none { display: inline-grid; place-items: center; background: var(--border); background-image: none; color: var(--text-2); font-weight: 700; }
+.pick.has-face { grid-template-columns: 36px minmax(0, 1fr) auto; gap: 0 12px; }
+.pick.has-face .face { grid-row: 1 / span 4; align-self: start; margin-top: 2px; }
+.who-head { display: flex; gap: 12px; align-items: center; }
+.tag .face { vertical-align: middle; margin-right: 4px; }
+.lean.thin { height: 4px; margin-top: 4px; }
+.lean.est i { opacity: 0.6; }
+.pick .lean { grid-column: 2 / 4; }
+.leanrow + .leanrow { margin-top: 10px; }
+.ends { display: flex; justify-content: space-between; align-items: baseline; font-size: 12px; color: var(--text-3); }
+.ends b { color: var(--text); font-size: 14px; }
+.lean i { position: absolute; top: 0; bottom: 0; background: var(--text-3); }
+.lean i[data-p="D"] { right: 50%; background: var(--d3); border-radius: 4px 0 0 4px; }
+.lean i[data-p="R"] { left: 50%; background: var(--r3); border-radius: 0 4px 4px 0; }
+.power > span { display: block; min-width: 84px; }
+.power small { display: block; font-size: 12px; color: var(--text-3); }
+.power b { font-size: 15px; font-weight: 700; white-space: nowrap; }
+.power i { font-style: normal; } .power i[data-p="D"] { color: var(--d3); } .power i[data-p="R"] { color: var(--r3); }
+.card, .win { background: var(--surface); border: 1px solid var(--border-strong); box-shadow: var(--shadow); }
+.card { position: absolute; z-index: 5; width: 300px; max-width: calc(100% - 16px); max-height: calc(100% - 16px); overflow: hidden; border-radius: 12px; padding: 12px; opacity: 0; transition: opacity 120ms ease-out; pointer-events: none; left: 0; top: 0; will-change: transform; }
+.card.on { opacity: 1; }
+.win { position: absolute; z-index: 6; top: 52px; right: 8px; bottom: 8px; width: 420px; max-width: calc(100% - 16px); border-radius: 14px; display: flex; flex-direction: column; overflow: hidden; }
+.winhead { flex: none; display: flex; align-items: center; min-height: 44px; border-bottom: 1px solid var(--border); }
+.winhead h2 { flex: 1; min-width: 0; margin: 0; padding: 0 12px; font-size: 16px; font-weight: 700; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.winhead .back + h2 { padding-left: 0; }
+.winbody { flex: 1; overflow: auto; padding: 4px 12px 16px; overscroll-behavior: contain; }
+h3 { margin: 0 0 3px; font-size: 12px; font-weight: 650; color: var(--text-3); }
+.title { font-size: 16px; font-weight: 700; line-height: 1.25; }
+.stats { display: flex; flex-wrap: wrap; gap: 2px 12px; margin-top: 3px; font-size: 13px; color: var(--text-2); }
+.stats b { color: var(--text); font-weight: 650; }
+.kv { display: grid; grid-template-columns: 84px minmax(0, 1fr); gap: 2px 8px; align-items: baseline; padding: 8px 0 0; }
+.kv > span:first-child { font-size: 12px; color: var(--text-3); }
+.block { padding: 10px 0; border-top: 1px solid var(--border); }
+.block:first-child { border-top: 0; }
+.block > div + div { margin-top: 4px; }
+.src { font-size: 12px; color: var(--text-3); text-decoration: none; padding: 0 2px; }
+@media (hover: hover) and (pointer: fine) { .src:hover { color: var(--accent); } }
+.lead { font-size: 15px; font-weight: 650; line-height: 1.3; color: var(--text); margin: 0 0 8px; }
+.hero { display: flex; align-items: baseline; gap: 8px; }
+.hero b { font-size: 34px; line-height: 1; font-weight: 750; letter-spacing: -0.02em; }
+.hero span { font-size: 13px; color: var(--text-2); }
+.meter { display: flex; gap: 2px; flex: 1; height: 12px; min-width: 0; position: relative; }
+.meter i { display: block; min-width: 2px; background: var(--border); }
+.meter i:first-child { border-radius: 4px 0 0 4px; } .meter i:last-of-type { border-radius: 0 4px 4px 0; }
+.meter i[data-p="D"] { background: var(--d3); } .meter i[data-p="R"] { background: var(--r3); } .meter i[data-c="a"] { background: var(--accent-fill); } .meter i[data-c="m"] { background: var(--text-3); }
+.meter .tick { position: absolute; top: -2px; bottom: -2px; width: 2px; background: var(--text); }
+.mrow { display: grid; grid-template-columns: 62px 30px minmax(0, 1fr) 30px; gap: 6px; align-items: center; font-size: 13px; padding: 3px 0; }
+.mrow > span:first-child { color: var(--text-3); font-size: 12px; }
+.mrow b { font-weight: 650; } .mrow b:last-child { text-align: right; }
+.mhead { font-size: 13px; font-weight: 650; padding-top: 6px; }
+.legend { display: flex; flex-wrap: wrap; gap: 4px 12px; font-size: 12px; color: var(--text-3); padding-top: 6px; }
+.legend i { display: inline-block; width: 9px; height: 9px; border-radius: 50%; margin-right: 4px; }
+.legend i[data-p="D"] { background: var(--d3); } .legend i[data-p="R"] { background: var(--r3); } .legend i[data-c="a"] { background: var(--accent-fill); } .legend i[data-c="m"] { background: var(--text-3); }
+.seats { display: flex; gap: 3px; padding: 2px 0; }
+.seats .dot { width: 14px; height: 14px; }
+.hbar { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr) 34px; gap: 8px; align-items: center; font-size: 13px; padding: 3px 0; }
+.hbar .track { display: block; height: 10px; }
+.hbar .track i { display: block; height: 100%; border-radius: 0 4px 4px 0; background: var(--accent-fill); min-width: 2px; }
+.hbar b { text-align: right; font-weight: 650; }
+.pair { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; margin: 2px 0 10px; }
+.pair > div { padding: 8px 10px; border-radius: 10px; background: var(--bg); font-size: 13px; line-height: 1.35; border-top: 3px solid var(--text-3); }
+.pair > div[data-p="D"] { border-top-color: var(--d3); } .pair > div[data-p="R"] { border-top-color: var(--r3); }
+.tl { position: relative; margin-left: 5px; padding-left: 16px; border-left: 2px solid var(--border); }
+.tl > div { position: relative; padding: 5px 0; font-size: 14px; }
+.tl > div::before { content: ""; position: absolute; left: -22px; top: 11px; width: 10px; height: 10px; border-radius: 50%; background: var(--accent-fill); }
+.tl b { display: block; font-size: 12px; font-weight: 650; color: var(--text-3); }
+.chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.chip { display: inline-flex; gap: 5px; align-items: baseline; padding: 4px 9px; border-radius: 999px; background: var(--bg); border: 1px solid var(--border); font-size: 12px; color: var(--text-2); }
+.chip b { color: var(--text); font-weight: 700; font-size: 13px; }
+.cres { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) 50px; gap: 8px; align-items: center; padding: 5px 0; font-size: 13px; }
+.cres small { display: block; color: var(--text-3); font-size: 12px; }
+.cres .lean { margin: 0; grid-column: auto; }
+.cres .num { text-align: right; font-weight: 700; }
+.cres .num[data-p="D"] { color: var(--d3); } .cres .num[data-p="R"] { color: var(--r3); }
+.fact { display: grid; grid-template-columns: 24px minmax(0, 1fr); gap: 6px; align-items: start; padding: 5px 0; font-size: 14px; }
+.ic { width: 18px; height: 18px; color: var(--text-3); fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; flex: none; }
+.stance { display: grid; grid-template-columns: 24px minmax(0, 1fr); gap: 6px; padding: 8px 0; border-top: 1px solid var(--border); }
+.stance b { display: block; font-size: 13px; font-weight: 650; }
+.stance div { font-size: 14px; line-height: 1.35; }
+.bigname .lean { height: 12px; margin-top: 8px; }
+.pullq { font-size: 15px; line-height: 1.35; }
+details > summary { font-size: 14px; }
+.winbody { overflow-x: hidden; }
+.btns { display: flex; flex-wrap: wrap; gap: 8px; padding-top: 10px; }
+.btns:empty { display: none; }
+.btn { display: inline-flex; align-items: center; min-height: 40px; padding: 0 12px; border: 1px solid var(--border-strong); border-radius: 10px; text-decoration: none; font-size: 14px; font-weight: 550; }
+.btn:active, .pick:active { transform: scale(0.97); }
+.pick { display: grid; width: 100%; grid-template-columns: 10px minmax(0, 1fr) auto; gap: 0 9px; align-items: baseline; text-align: left; padding: 8px 0; min-height: 40px; }
+.pick + .pick { border-top: 1px solid var(--border); }
+.pick b { font-weight: 650; }
+.pick .sub { grid-column: 2 / 4; font-size: 13px; color: var(--text-3); }
+.pick .say { grid-column: 2 / 4; font-size: 14px; color: var(--text); padding-top: 3px; }
+.st { font-size: 12px; color: var(--text-2); }
+.st[data-s="filed"] { color: var(--accent); font-weight: 650; }
+.dot { width: 10px; height: 10px; border-radius: 50%; align-self: center; background: var(--text-3); }
+.dot[data-p="D"] { background: var(--d3); } .dot[data-p="R"] { background: var(--r3); }
+.filters { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; padding: 8px 0; }
+.filters select { min-width: 0; min-height: 44px; border: 1px solid var(--border-strong); border-radius: 10px; background: var(--surface); padding: 0 8px; font-size: 16px; }
+details { border-top: 1px solid var(--border); }
+summary { cursor: pointer; padding: 11px 0; font-weight: 600; }
+details p { margin: 0 0 10px; font-size: 14px; }
+@media (hover: hover) and (pointer: fine) { .pick:hover b { text-decoration: underline; text-underline-offset: 2px; } .tab:hover { color: var(--text); } }
+@media (prefers-reduced-motion: reduce) { .card { transition: none; } }
+@media (max-width: 559px) {
+  .bar { position: static; border-bottom: 1px solid var(--border); }
+  .reset { top: 8px; }
+  .tab { flex: 1; padding: 0 2px; font-size: 13px; }
+  .bar { flex-wrap: wrap; height: auto; }
+  .bar .tab { height: 44px; }
+  .blurb { flex: 0 0 100%; order: 9; text-align: left; padding: 8px 12px; border-top: 1px solid var(--border); }
+  .bar .gap, .bar .list, .bar .fs { display: none; }
+  .stage { flex: none; width: 100%; }
+  html.full .stage { aspect-ratio: 975 / 640; }
+  html.full #app { overflow: auto; }
+  .card, .power { display: none; }
+  .win { position: static; width: 100%; max-width: none; border: 0; box-shadow: none; border-radius: 0; border-top: 1px solid var(--border); }
+  .win .winbody { overflow: visible; }
+  .btn, .pick { min-height: 44px; }
+}
+</style>
+</head>
+<body>
+<main id="app">
+  <div class="bar" role="tablist"></div>
+  <div class="stage"><canvas class="gl" role="img" aria-label="United States map"></canvas><div class="tags"></div><button class="icon reset" data-reset aria-label="Reset camera" title="Reset camera" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5"/></svg></button><div class="powerslot"></div><div class="card"></div><div class="winslot"></div></div>
+  <div class="phoneslot"></div>
+  <div class="sr" id="keys"></div>
+</main>
+<script src="data.js"></script>
+<script src="map.js"></script>
+<script>
+const { DATA, SHAPES } = window.ELECTION;
+const app = document.getElementById('app');
+const q = (s) => app.querySelector(s);
+const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
+const host = (u) => { try { return new URL(u).hostname.replace(/^www\./, ''); } catch { return 'source'; } };
+const safe = (u) => (/^https:\/\//.test(u || '') ? u : '');
+const src = (u) => (Array.isArray(u) ? src(u[0]) : safe(u) ? ` <a class="src" href="${esc(u)}" target="_blank" rel="noopener" title="${esc(host(u))}" aria-label="Source: ${esc(host(u))}">↗</a>` : '');
+const day = (d) => (d ? new Date(`${d}T12:00:00Z`).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric', timeZone: 'UTC' }) : '');
+const shortDay = (d) => (d ? new Date(`${d}T12:00:00Z`).toLocaleDateString('en-US', { month: 'short', day: 'numeric', timeZone: 'UTC' }) : '');
+const ICON = {
+  list: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 6h13M8 12h13M8 18h13M3.5 6h.01M3.5 12h.01M3.5 18h.01"/></svg>',
+  full: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg>',
+  shrink: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 4v5H4M15 4v5h5M9 20v-5H4M15 20v-5h5"/></svg>',
+  close: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>',
+  back: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg>',
+};
+const STATUS = { filed: 'Filed', considering: 'Considering', ruled_out: 'Said no', unstated: "Hasn't said" };
+const ISSUES = [['economy_taxes', 'Economy'], ['health_care', 'Health care'], ['immigration', 'Immigration'], ['foreign_policy', 'Foreign policy'], ['signature', 'Signature issue']];
+const BLURB = {
+  now: 'Where power stands today, with states colored by their 2026 House vote.',
+  president: 'Who holds the presidency and who may run in 2028.',
+  primaries: 'Which states vote first in the 2028 primaries, and when.',
+  senate: 'The Senate seats on the ballot in 2028, and who holds each one.',
+  governor: "The governor's seats on the ballot in 2028, and who holds each one.",
+};
+const TABS = [['now', 'Now'], ['president', 'President'], ['primaries', 'Primaries'], ['senate', 'Senate'], ['governor', 'Governor']];
+function phone0() { return matchMedia('(max-width: 559px)').matches; }
+const partyKey = (p) => (p.party?.[0] === 'D' ? 'D' : p.party?.[0] === 'R' ? 'R' : 'O');
+const last = (n) => (/Van Hollen|Cortez Masto/.exec(n)?.[0] ?? n.replace(/ (Jr|Sr)\.?$/, '').split(' ').at(-1));
+const byState = (list) => Object.fromEntries(list.map((x) => [x.state, x]));
+const senate = byState(DATA.senate), gov = byState(DATA.governors);
+const shape = Object.fromEntries(SHAPES.map((s) => [s.abbr, s]));
+const personNamed = (n) => DATA.people.find((p) => p.name === n);
+const ui = { tab: 'now', stack: phone0() ? [] : [{ kind: 'list' }], party: 'all', issue: '', hover: '' };
+const phone = () => matchMedia('(max-width: 559px)').matches;
+const css = (name) => getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+
+const openState = () => [...ui.stack].reverse().find((p) => p.kind === 'state')?.id ?? '';
+const marginTone = (w, m) => `--${w.toLowerCase()}${m < 5 ? 1 : m < 15 ? 2 : 3}`;
+const tone = (a) => {
+  if (openState()) return '--land';
+  if (ui.tab === 'now' || ui.tab === 'president') { const m = DATA.colors[a]; return m ? `--${m.winner.toLowerCase()}${m.margin_pct < 5 ? 1 : m.margin_pct < 15 ? 2 : 3}` : '--land'; }
+  if (ui.tab === 'senate' || ui.tab === 'governor') { const s = (ui.tab === 'senate' ? senate : gov)[a]; return s ? (s.party === 'D' ? '--d3' : s.party === 'R' ? '--r3' : '--accent-fill') : '--land'; }
+  const d = DATA.calendar.dem.some((c) => c.state === a), r = DATA.calendar.gop.some((c) => c.state === a);
+  return d && r ? '--accent-fill' : d ? '--d3' : r ? '--r3' : '--land';
+};
+const rise = (a) => {
+  if (openState()) return 2;
+  if (ui.tab === 'now' || ui.tab === 'president') return 3 + Math.sqrt(DATA.electoral[a] ?? 3) * 5;
+  if (ui.tab === 'senate') return senate[a] ? 26 : 3;
+  if (ui.tab === 'governor') return gov[a] ? 26 : 3;
+  const d = DATA.calendar.dem.findIndex((c) => c.state === a), r = DATA.calendar.gop.findIndex((c) => c.state === a);
+  const order = Math.min(d < 0 ? 9 : d, r < 0 ? 9 : r);
+  return order === 9 ? 3 : 40 - order * 5;
+};
+const labelsFor = (a) => {
+  if (ui.tab === 'now') return [];
+  if (ui.tab === 'president') return [];
+  if (ui.tab === 'senate') return senate[a] ? [{ text: last(senate[a].holder), id: `${a}|${senate[a].holder}`, name: senate[a].holder, party: senate[a].party }] : [];
+  if (ui.tab === 'governor') return gov[a] ? [{ text: last(gov[a].incumbent), id: `${a}|${gov[a].incumbent}`, name: gov[a].incumbent, party: gov[a].party }] : [];
+  const out = [], d = DATA.calendar.dem.find((c) => c.state === a), r = DATA.calendar.gop.findIndex((c) => c.state === a);
+  if (d) out.push({ text: shortDay(d.date) });
+  if (r >= 0) out.push({ text: DATA.calendar.gop[r].date ? shortDay(DATA.calendar.gop[r].date) : `GOP #${r + 1}` });
+  return out;
+};
+const OFFSHORE = ['NH', 'VT', 'MA', 'RI', 'CT', 'NJ', 'DE', 'MD', 'DC'];
+let tagList = [];
+const buildTags = () => {
+  const box = q('.tags'); tagList = []; box.innerHTML = '';
+  if (app.clientWidth < 760 || openState()) { scene?.setLeads([]); return; }
+  const leads = []; let slot = 0;
+  const add = (l, a, x, y, off, i, n) => {
+    const el = document.createElement('div');
+    el.className = `tag${off ? ' off' : ''}`; el.innerHTML = `${l.id ? face(l.id, l.name, l.party, 22) : ''}${esc(l.text)}`;
+    if (l.person) el.dataset.person = l.person;
+    box.append(el); tagList.push({ el, a, x, y, off, dy: (i - (n - 1) / 2) * 14 });
+  };
+  for (const s of SHAPES) {
+    const list = labelsFor(s.abbr); if (!list.length) continue;
+    if (OFFSHORE.includes(s.abbr)) {
+      const y = 170 + slot * 24; slot += 1;
+      leads.push([s.cx, s.cy, rise(s.abbr), 918, y]);
+      add({ text: list.map((l) => l.text).join(', '), person: list[0].person, id: list[0].id, name: list[0].name, party: list[0].party }, s.abbr, 922, y, true, 0, 1);
+    } else list.forEach((l, i) => add(l, s.abbr, s.cx, s.cy, false, i, list.length));
+  }
+  scene?.setLeads(leads);
+};
+const moveTags = () => {
+  if (!scene) return;
+  for (const t of tagList) {
+    const p = scene.project(t.x, t.y, t.off ? 1 : scene.topOf(t.a));
+    const w = (t.w ??= t.el.offsetWidth);
+    t.el.style.transform = `translate3d(${Math.min(p.x - (t.off ? 0 : w / 2), q('.tags').clientWidth - w - 6).toFixed(1)}px, ${(p.y - 7 + t.dy).toFixed(1)}px, 0)`;
+  }
+};
+const leanBar = (party, m) => { const p = party?.[0] === 'D' ? 'D' : party?.[0] === 'R' ? 'R' : 'O'; return typeof m === 'number' ? `<span class="lean" role="img" aria-label="${p}+${m.toFixed(1)}"><i data-p="${p}" style="${p === 'R' ? 'left:50%' : 'right:50%'};width:${Math.min(50, (m / 40) * 50).toFixed(1)}%"></i></span>` : ''; };
+const resRow = (label, who, party, m, source, id) => { const p = party?.[0]; return `<div class="res"><h3>${esc(label)}</h3><span class="num" data-p="${esc(p ?? '')}">${typeof m === 'number' ? `${esc(p)}+${m.toFixed(1)}` : ''}</span><span class="who" style="grid-column:1/-1">${id ? `<button class="linkname" data-open-official="${esc(id)}">${esc(who)}</button>` : esc(who)}${src(source)}</span>${leanBar(party, m)}</div>`; };
+const initials = (n) => n.replace(/ (Jr|Sr)\.?$/, '').split(' ').filter(Boolean).map((w) => w[0]).filter((_, i, l) => i === 0 || i === l.length - 1).join('').toUpperCase();
+const face = (id, name, party, size) => { const f = DATA.faces?.map?.[id], cols = DATA.faces?.cols ?? 32, p = party?.[0] === 'D' ? 'D' : party?.[0] === 'R' ? 'R' : 'O'; return f ? `<span class="face" data-p="${p}" style="width:${size}px;height:${size}px;background-size:${cols * size}px auto;background-position:-${f[0] * size}px -${f[1] * size}px" role="img" aria-label="${esc(name)}"></span>` : `<span class="face none" data-p="${p}" style="width:${size}px;height:${size}px;font-size:${Math.round(size * 0.36)}px" aria-hidden="true">${esc(initials(name))}</span>`; };
+const leanOf = (x) => (typeof x?.score?.score === 'number' ? { v: x.score.score, est: false } : typeof x?.est?.lean === 'number' ? { v: x.est.lean, est: true } : null);
+const leanV = (l, thin) => { if (!l) return ''; const p = l.v < 0 ? 'D' : 'R'; const words = `${l.v < 0 ? 'Left' : 'Right'} ${Math.abs(l.v).toFixed(2)}${l.est ? ', estimated' : ''}`; return `<span class="lean${thin ? ' thin' : ''}${l.est ? ' est' : ''}" role="img" aria-label="${esc(words)}"><i data-p="${p}" style="${p === 'R' ? 'left:50%' : 'right:50%'};width:${Math.min(50, Math.abs(l.v) * 50).toFixed(1)}%"></i></span>`; };
+const leanBlock = (x) => {
+  const s = x?.score, e = x?.est; if (!s && !e) return '';
+  const line = (v, label, source, est) => `<div class="leanrow"><div class="ends"><span>Left</span><b>${est ? 'Estimate' : Math.abs(v).toFixed(2)}</b><span>Right</span></div>${leanV({ v, est }, false)}<div class="st" style="white-space:normal">${label}${source}</div></div>`;
+  return `<div class="block"><h3>Lean</h3>${s ? line(s.score, `Voting record, ${esc(s.chamber)}, ${esc(s.congress)}th Congress: ${s.rank} of ${s.total} from the ${esc(s.side)}`, `${src(s.source)}${safe(DATA.scoreCaveat) ? ` <a class="src" href="${esc(DATA.scoreCaveat)}" target="_blank" rel="noopener">limits</a>` : ''}`, false) : ''}${e ? line(e.lean, `Estimated from their positions. ${esc(e.basis ?? '')}`, '', true) : ''}</div>`;
+};
+const stateStats = (a) => {
+  const m = DATA.colors[a];
+  return `<div class="stats"><span><b>${DATA.electoral[a]}</b> electoral</span>${DATA.house[a] ? `<span><b>${DATA.house[a]}</b> House</span>` : ''}</div>${m ? resRow(DATA.colorLabel, '', m.winner, m.margin_pct) : ''}`;
+};
+const raceRows = (a) => {
+  const s = senate[a], g = gov[a], d = DATA.calendar.dem.find((c) => c.state === a), r = DATA.calendar.gop.findIndex((c) => c.state === a);
+  return `${s ? `<div class="kv"><span>Senate</span><span>${esc(s.holder)} (${esc(s.party)})</span></div>` : ''}${g ? `<div class="kv"><span>Governor</span><span>${esc(g.incumbent)} (${esc(g.party)})</span></div>` : ''}${d ? `<div class="kv"><span>Democrats</span><span>${esc(day(d.date))}</span></div>` : ''}${r >= 0 ? `<div class="kv"><span>Republicans</span><span>${DATA.calendar.gop[r].date ? esc(day(DATA.calendar.gop[r].date)) : `#${r + 1} in order`}</span></div>` : ''}`;
+};
+const personRow = (p) => {
+  const pick = ui.issue && p.issues?.[ui.issue];
+  return `<button class="pick has-face" data-open-person="${esc(p.name)}">${face(p.name, p.name, p.party, 36)}<b>${esc(p.name)}</b><span class="st" data-s="${esc(p.status)}">${esc(STATUS[p.status] ?? '')}</span><span class="sub">${esc(p.role)}</span>${leanV(leanOf(p), true)}${ui.issue ? `<span class="say">${pick?.text ? esc(pick.text) : '—'}</span>` : ''}</button>`;
+};
+const hoverCard = (a) => {
+  const here = DATA.people.filter((p) => p.state === a);
+  return `<div class="title">${esc(shape[a].name)}</div>${stateStats(a)}${(DATA.offices?.[a]?.in_office ?? []).filter((x) => x.g === 'top').map((x) => officialRow(x.id)).join('') || raceRows(a)}`;
+};
+const personCard = (p) => `<div class="title">${esc(p.name)}</div><div class="stats"><span class="st" data-s="${esc(p.status)}">${esc(STATUS[p.status] ?? '')}</span><span>${esc(p.role)}</span></div>${p.why?.text ? `<div style="padding-top:8px">${esc(p.why.text)}</div>` : p.status_quote ? `<div style="padding-top:8px">“${esc(p.status_quote)}”</div>` : ''}`;
+const official = (id) => DATA.officials?.[id];
+const officialRow = (id, lastTitle) => { const o = official(id); if (!o) return ''; return `<button class="pick has-face" data-open-official="${esc(id)}">${face(id, o.name, o.party, 36)}<b>${esc(o.name)}</b><span class="st">${o.leaving ? 'Leaving' : ''}</span><span class="sub">${esc((lastTitle ? o.titles.at(-1) : o.titles[0]) ?? '')}</span>${leanV(leanOf(o), true)}</button>`; };
+const officeGroup = (title, list, lastTitle) => {
+  if (!list?.length) return `<div class="block"><h3 class="group">${esc(title)}</h3><div class="st" style="white-space:normal">None found yet</div></div>`;
+  const top = list.filter((x) => x.g === 'top'), house = list.filter((x) => x.g === 'house'), state = list.filter((x) => x.g === 'state');
+  return `<div class="block"><h3 class="group">${esc(title)}</h3>${top.map((x) => officialRow(x.id, lastTitle)).join('')}${house.length ? `<details><summary>House (${house.length})</summary>${house.map((x) => officialRow(x.id)).join('')}</details>` : ''}${state.length ? `<details><summary>Statewide offices (${state.length})</summary>${state.map((x) => officialRow(x.id)).join('')}</details>` : ''}</div>`;
+};
+const findOfficial = (a, name) => { const list = Object.values(DATA.officials ?? {}).filter((o) => o.state === a); const low = (name ?? '').toLowerCase(), end = low.split(' ').at(-1); return list.find((o) => o.name.toLowerCase() === low) ?? list.find((o) => o.name.toLowerCase().endsWith(end)); };
+const first = (s) => { if (!s) return ''; const m = String(s).replace(/\b(U\.S|Sen|Rep|Gov|Dr|Mr|Ms|Jr|St|Jan|Feb|Mar|Apr|Aug|Sept|Oct|Nov|Dec)\./g, '$1∯').match(/^[\s\S]*?[.!?]["”]?(?=\s+[A-Z“"]|$)/); return (m ? m[0] : String(s)).replace(/∯/g, '.'); };
+const ICONS = { money: '<path d="M12 3v18M16 7.5C15 6 13.6 5.5 12 5.5c-2.2 0-4 1.2-4 3.2 0 4.3 8.2 2.4 8.2 6.6 0 2-1.9 3.2-4.2 3.2-1.8 0-3.4-.7-4.3-2.2"/>', health: '<path d="M12 5v14M5 12h14"/>', move: '<path d="M4 8h13l-3-3M20 16H7l3 3"/>', globe: '<circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.5 2.7 3.8 5.7 3.8 9s-1.3 6.3-3.8 9c-2.5-2.7-3.8-5.7-3.8-9S9.500 5.700 12 3z"/>', chip: '<rect x="7" y="7" width="10" height="10" rx="2"/><path d="M10 3v4M14 3v4M10 17v4M14 17v4M3 10h4M3 14h4M17 10h4M17 14h4"/>', bolt: '<path d="M13 3L5 14h6l-1 7 8-11h-6l1-7z"/>', vote: '<path d="M4 20h16M6 20V9l6-5 6 5v11M10 20v-5h4v5"/>', book: '<path d="M4 5c3-1 6-1 8 1 2-2 5-2 8-1v14c-3-1-6-1-8 1-2-2-5-2-8-1zM12 6v14"/>', home: '<path d="M4 11l8-7 8 7M6 10v10h12V10"/>', dot: '<circle cx="12" cy="12" r="3"/>' };
+const iconFor = (k) => { const s = (k || '').toLowerCase(); const n = /tax|econ|tariff|cost|wage|budget|spend|job|trade|labor|inflation|debt|financ/.test(s) ? 'money' : /health|medic|insulin|drug|abortion|hospital/.test(s) ? 'health' : /immig|border|ice\b|deport/.test(s) ? 'move' : /foreign|war|iran|israel|ukraine|china|defense|military|veteran/.test(s) ? 'globe' : /\bai\b|tech|data|crypto|internet|science/.test(s) ? 'chip' : /climate|energy|environment|water|grid|oil/.test(s) ? 'bolt' : /vot|elect|democra|redistrict|court|constitution|gun|crime|police|justice|rights/.test(s) ? 'vote' : /educ|school|college/.test(s) ? 'book' : /hous|rent|rural|farm|agric/.test(s) ? 'home' : 'dot'; return `<svg class="ic" viewBox="0 0 24 24" aria-hidden="true">${ICONS[n]}</svg>`; };
+const compactRes = (label, who, party, m, source, id) => { const p = party?.[0]; return `<div class="cres"><span>${esc(label)}${who ? `<small>${id ? `<button class="linkname" data-open-official="${esc(id)}">${esc(who)}</button>` : esc(who)}${src(source)}</small>` : ''}</span>${leanBar(party, m)}<span class="num" data-p="${esc(p ?? '')}">${typeof m === 'number' ? `${esc(p)}+${m.toFixed(1)}` : ''}</span></div>`; };
+const countParty = (list) => { const n = { D: 0, R: 0 }; for (const x of list) { const o = official(x.id); if (n[o?.party] !== undefined) n[o.party] += 1; } return n; };
+const houseFold = (label, house) => { if (!house.length) return ''; const n = countParty(house); return `<details><summary>${esc(label)} <span class="st">${n.D} D, ${n.R} R</span></summary>${house.map((x) => officialRow(x.id)).join('')}</details>`; };
+const officeSec = (title, list, lastTitle, empty) => { const top = (list ?? []).filter((x) => x.g === 'top'), house = (list ?? []).filter((x) => x.g === 'house'), state = (list ?? []).filter((x) => x.g === 'state'); return `<div class="block"><h3 class="group">${esc(title)}</h3>${!list?.length ? `<div class="st">${esc(empty)}</div>` : ''}${top.map((x) => officialRow(x.id, lastTitle)).join('')}${houseFold(`House (${house.length})`, house)}${state.length ? `<details><summary>Statewide offices (${state.length})</summary>${state.map((x) => officialRow(x.id)).join('')}</details>` : ''}</div>`; };
+const statePage = (a) => {
+  const s = senate[a], g = gov[a], d = DATA.calendar.dem.find((c) => c.state === a), r = DATA.calendar.gop.find((c) => c.state === a), v = DATA.voter[a] ?? {}, m = DATA.colors[a];
+  const mid = DATA.midterm?.[a], off = DATA.offices?.[a], st = DATA.story?.[a];
+  const chips = [`<span class="chip"><b>${DATA.electoral[a]}</b> electoral votes${src(DATA.electoral_source)}</span>`, DATA.house[a] ? `<span class="chip"><b>${DATA.house[a]}</b> House seats${src(DATA.house_source)}</span>` : '', v.mail ? `<span class="chip">${v.mail.primarily_mail ? 'Votes by mail' : v.mail.no_excuse ? 'Mail voting open to all' : 'Mail voting needs an excuse'}${src(v.mail_source)}</span>` : '', v.same_day === true ? `<span class="chip">Same-day registration${src(v.same_day_source)}</span>` : ''].join('');
+  const more = [
+    st?.summary && first(st.summary) !== st.summary ? `<p>${esc(st.summary)}${src(st.source)}</p>` : '',
+    st?.role ? `<p>${esc(st.role)}${src(st.role_source)}</p>` : '',
+    off?.legislature?.upper ? `<p><b>State legislature:</b> ${off.legislature.lower ? `${esc(off.legislature.upper)} upper chamber, ${esc(off.legislature.lower)} lower chamber.` : `one chamber, ${esc(off.legislature.upper)}.`}${src(off.legislature.source)}</p>` : '',
+    ...(st?.measures ?? []).map((x) => `<p><b>${esc(x.name)}:</b> ${esc(first(x.what))} ${esc(x.result)}${src(x.source)}</p>`),
+    s ? `<p><b>Senate seat up in 2028:</b> ${esc(s.holder)}${s.plans ? `. ${esc(s.plans)}` : ''}.${src(s.plans_source ?? s.source)}</p>` : '',
+    g ? `<p><b>Governor's seat up in 2028:</b> ${esc(g.incumbent)}. ${esc(g.term_status)}.${src(g.status_source ?? g.source)}</p>` : '',
+    d ? `<p><b>Democratic primary:</b> ${esc(day(d.date))}${d.note ? `. ${esc(d.note)}` : ''}</p>` : '',
+    r ? `<p><b>Republican primary:</b> ${r.date ? esc(day(r.date)) : `#${DATA.calendar.gop.indexOf(r) + 1} in the party's order, no date yet`}</p>` : '',
+    ...(v.changes ?? []).map((c) => `<p>${esc(c.text)}${src(c.source)}</p>`),
+    ...(DATA.redistricting[a] ?? []).map((x) => `<p><b>House map:</b> ${esc(x.note)}${src(x.source)}</p>`),
+    DATA.county?.[a] ? `<p><b>County map:</b> color from ${esc(DATA.county[a].race)}${src(DATA.county[a].source)}${DATA.pop ? `, height from ${esc(DATA.pop.year)} population${src(DATA.pop.source)}` : ''}. Amber means most votes went to non-party candidates, counted together.</p>` : '',
+  ].filter(Boolean).join('');
+  return `${st?.summary ? `<div class="block"><p class="lead" style="margin:0">${esc(first(st.summary))}${src(st.source)}</p></div>` : ''}
+    <div class="block">${m ? compactRes('House', mid?.house ? `${mid.house.D} D, ${mid.house.R} R${mid.house.uncalled ? `, ${mid.house.uncalled} uncalled` : ''}` : '', m.winner, m.margin_pct, mid?.source) : ''}${mid?.senate ? compactRes('Senate', mid.senate.winner, mid.senate.party, mid.senate.margin_pct, mid.senate.source, findOfficial(a, mid.senate.winner)?.id) : ''}${mid?.governor ? compactRes('Governor', mid.governor.winner, mid.governor.party, mid.governor.margin_pct, mid.governor.source, findOfficial(a, mid.governor.winner)?.id) : ''}${mid?.note ? `<div class="st">${esc(mid.note)}</div>` : ''}</div>
+    ${pmState(a)}
+    ${officeSec('In office', off?.in_office, false, 'None found')}${officeSec('Taking office', off?.taking_office, false, 'No new officeholders')}${officeSec('Running', off?.running, true, 'None found yet')}
+    ${st?.issues?.length ? `<div class="block"><h3 class="group">What's in dispute</h3>${st.issues.map((i) => `<div class="stance">${iconFor(i.issue)}<div><b>${esc(i.issue)}</b>${esc(first(i.text))}${src(i.source)}</div></div>`).join('')}</div>` : ''}
+    <div class="block"><div class="chips">${chips}</div><div class="btns">${safe(v.vote_gov) ? `<a class="btn" href="${esc(v.vote_gov)}" target="_blank" rel="noopener">Register</a>` : ''}${safe(v.election_office) ? `<a class="btn" href="${esc(v.election_office)}" target="_blank" rel="noopener">Election office</a>` : ''}</div></div>
+    ${more ? `<details><summary>More</summary>${more}</details>` : ''}`;
+};
+const items = (list) => (list ?? []).map((r) => `<div>${esc(r.text)}${r.who ? ` <span class="st">${esc(r.who)}</span>` : ''}${src(r.source)}</div>`).join('');
+const bgLine = (b) => [b?.hometown, b?.born_year && `Born ${b.born_year}`, b?.education, b?.career, b?.service].filter(Boolean).map((t) => `<div>${esc(t)}</div>`).join('');
+const stanceRow = (k, label, text, source) => `<div class="stance">${iconFor(k)}<div><b>${esc(label)}</b>${esc(text)}${src(source)}</div></div>`;
+const leanHero = (x) => { const l = leanOf(x); return l ? `<div class="bigname"><div class="ends" style="margin-top:8px"><span>Left</span><b>${l.est ? `${Math.abs(l.v) < 0.13 ? 'Near center' : l.v < 0 ? 'Leans left' : 'Leans right'} (estimate)` : `${l.v < 0 ? 'Left' : 'Right'} ${Math.abs(l.v).toFixed(2)}`}</b><span>Right</span></div>${leanV(l, false)}</div>` : ''; };
+const personPage = (p) => { const b = p.background; const facts = [['book', b?.education], ['home', b?.hometown], ['money', b?.career], ['globe', b?.service]].filter(([, v]) => v); return `<div class="block"><div class="who-head">${face(p.name, p.name, p.party, 72)}<div><div style="font-weight:650">${esc(p.role)}</div><span class="st" data-s="${esc(p.status)}">${esc(STATUS[p.status] ?? '')}</span>${b?.born_year ? ` <span class="st">born ${esc(b.born_year)}</span>` : ''}</div></div>${leanHero(p)}</div>
+    ${pmPerson(p.name)}
+    ${p.why?.text ? `<div class="block"><h3 class="group">Why</h3><div class="pullq">${esc(first(p.why.text))}${src(p.why.source)}</div></div>` : ''}
+    ${ISSUES.some(([k]) => p.issues?.[k]?.text) ? `<div class="block"><h3 class="group">What they stand for</h3>${ISSUES.map(([k, l]) => { const i = p.issues?.[k]; return i?.text ? stanceRow(k === 'signature' ? (i.label ?? '') : l, k === 'signature' && i.label ? i.label : l, first(i.text), i.source) : ''; }).join('')}</div>` : ''}
+    ${facts.length ? `<div class="block"><h3 class="group">Background${src(b?.source)}</h3>${facts.map(([ic, v]) => `<div class="fact"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true">${ICONS[ic]}</svg><div>${esc(first(v))}</div></div>`).join('')}</div>` : ''}
+    ${p.status_quote ? `<div class="block"><h3 class="group">On running</h3><div>“${esc(p.status_quote)}” <span class="st">${esc(day(p.status_date))}</span>${src(p.status_source)}</div></div>` : ''}
+    <div class="btns">${safe(p.links?.site) ? `<a class="btn" href="${esc(p.links.site)}" target="_blank" rel="noopener">Website</a>` : ''}</div>
+    ${p.record?.length ? `<details><summary>Record</summary>${p.record.map((r) => `<p>${esc(r.text)}${src(r.source)}</p>`).join('')}</details>` : ''}
+    ${p.criticism?.length ? `<details><summary>Criticism</summary>${p.criticism.map((r) => `<p>${esc(r.text)} <span class="st">${esc(r.who ?? '')}</span>${src(r.source)}</p>`).join('')}</details>` : ''}
+    ${p.offices?.length ? `<details><summary>Offices held</summary><div class="tl">${p.offices.map((o) => `<div><b>${esc(o.years ?? '')}</b>${esc(o.office)}${src(o.source)}</div>`).join('')}</div></details>` : ''}
+    ${p.signals?.length ? `<details><summary>Recent moves</summary>${p.signals.map((s) => `<p>${esc(s.text)} <span class="st">${esc(day(s.date))}</span>${src(s.source)}</p>`).join('')}</details>` : ''}
+    ${leanOf(p) ? `<details><summary>How lean is measured</summary>${leanBlock(p)}</details>` : ''}
+    ${p.labels?.length || p.caucuses?.length || p.ideology ? `<details><summary>Ideology</summary>${p.labels?.length ? `<p>${p.labels.map((l) => `“${esc(l.label)}”${src(l.source)}`).join(' ')}</p>` : ''}${p.caucuses?.length ? `<p>${p.caucuses.map((c) => `${esc(c.name)}${src(c.source)}`).join(' ')}</p>` : ''}${p.ideology ? `<p>${esc(p.ideology)}${src(p.ideology_source)}</p>` : ''}</details>` : ''}
+    <details><summary>Photo credit</summary><p>${photoCredit(p.name) || 'No photo yet'}</p></details>`; };
+const stanceBlocks = (list) => { const rows = (list ?? []).map((s) => stanceRow(s.issue, s.issue, first(s.text), s.source)).join(''); return rows ? `<div class="block"><h3 class="group">What they stand for</h3>${rows}</div>` : ''; };
+const scoreLine = (s) => (s ? `<div class="block"><h3>Voting record</h3>DW-NOMINATE ${s.score > 0 ? '+' : ''}${s.score}: ${s.rank} of ${s.total} from the ${s.side} in the ${s.chamber}, ${s.congress}th Congress${src(s.source)}${safe(DATA.scoreCaveat) ? ` <a class="src" href="${esc(DATA.scoreCaveat)}" target="_blank" rel="noopener">limits</a>` : ''}</div>` : '');
+const photoCredit = (id) => { const c = DATA.faces?.credit?.[id]; return c?.source ? `<div class="st" style="white-space:normal">Photo${c.author ? `: ${esc(c.author)}` : ''}${c.license ? `, ${esc(c.license)}` : ''}${src(c.source)}</div>` : ''; };
+const officialPage = (o) => `<div class="block"><div class="who-head">${face(o.id, o.name, o.party, 72)}<div><div style="font-weight:650">${esc(o.titles[0] ?? '')}${src(o.sources)}</div><span class="st">${esc({ D: 'Democrat', R: 'Republican', I: 'Independent' }[o.party] ?? o.party)}${o.state === 'US' ? '' : `, ${esc(shape[o.state]?.name ?? o.state)}`}</span>${o.leaving ? `<div class="st">${esc(o.leaving)}</div>` : ''}</div></div>${leanHero(o)}</div>${stanceBlocks(o.stances)}${leanOf(o) ? `<details><summary>How lean is measured</summary>${leanBlock(o)}</details>` : ''}<details><summary>Photo credit</summary><p>${photoCredit(o.id) || 'No photo yet'}</p></details>`;
+const meter = (parts, tick) => { const sum = parts.reduce((t, p) => t + p.v, 0) || 1; return `<span class="meter" role="img" aria-label="${esc(parts.map((p) => `${p.label} ${p.v}`).join(', '))}" title="${esc(parts.map((p) => `${p.label} ${p.v}`).join(', '))}">${parts.map((p) => `<i ${p.attr} style="flex:${p.v}"></i>`).join('')}${tick ? `<b class="tick" style="left:${(tick / sum) * 100}%"></b>` : ''}</span>`; };
+const seatRow = (label, pair, tick) => `<div class="mrow"><span>${esc(label)}</span><b>${esc(pair[0])}</b>${meter([{ label: 'Democrats', v: pair[0], attr: 'data-p="D"' }, { label: 'Republicans', v: pair[1], attr: 'data-p="R"' }], tick)}<b>${esc(pair[1])}</b></div>`;
+const seatBlock = (label, v, tick) => (v ? `<div class="mhead">${esc(label)}${src(v.source)}${v.uncalled ? ` <span class="st" style="font-weight:400">${esc(v.uncalled)} uncalled</span>` : ''}</div>${seatRow('Now', v.now, tick)}${seatRow('January', v.next, tick)}` : '');
+const hbar = (label, v, max, source) => `<div class="hbar"><span>${esc(label)}${src(source)}</span><span class="track" title="${esc(`${label} ${v}%`)}"><i style="width:${(v / max) * 100}%"></i></span><b>${esc(v)}%</b></div>`;
+const nowPage = () => {
+  const n = DATA.now; if (!n) return '';
+  const days = Math.max(0, Math.ceil((Date.UTC(2028, 10, 7) - Date.now()) / 864e5));
+  const P = n.power, flip = P.senate.next[0] > P.senate.next[1] && P.house.next[0] > P.house.next[1];
+  const court = (P.court?.by_appointing_president ?? []).flatMap((c) => Array(c.count).fill(/Obama|Biden/.test(c.president) ? 'D' : 'R')).sort();
+  const pollName = (x) => (/NBC/.test(x) ? 'NBC' : /Reuters/.test(x) ? 'Reuters' : x.split(' ')[0]);
+  const issueMax = Math.max(...n.top_issues.map((i) => i.pct));
+  const dir = n.mood.find((m) => /direction/i.test(m.measure)), ballot = n.mood.find((m) => /Generic/i.test(m.measure));
+  return `<div class="block"><div class="hero"><b>${days.toLocaleString()}</b><span>days until Election Day, ${esc(DATA.facts[0].value)}${src(DATA.facts[0].source)}</span></div></div>
+    <div class="block"><p class="lead">${flip ? 'Democrats take Congress in January. Republicans keep the White House.' : 'Who holds power'}</p>
+      <div class="who-head" style="padding-bottom:4px">${face('US|Donald Trump', 'Donald Trump', 'R', 36)}<button class="linkname" data-open-official="US|Donald Trump" style="text-decoration:none">Donald Trump</button><span class="st">President to Jan 2029${src(P.president?.sources)}</span></div>
+      ${seatBlock('Senate', P.senate, 50)}${seatBlock('House', P.house, 217.5)}${seatBlock('Governors', P.governors, 25)}
+      ${court.length ? `<div class="mhead">Supreme Court${src(P.court.by_appointing_president?.[0]?.source)}</div><div class="seats">${court.map((c) => `<span class="dot" data-p="${c}"></span>`).join('')}</div><div class="st">Justices by the party of the president who appointed them</div>` : ''}
+      <div class="legend"><span><i data-p="D"></i>Democrats</span><span><i data-p="R"></i>Republicans</span></div></div>
+    ${n.approval?.length ? `<div class="block"><p class="lead">Most voters disapprove of the president</p>${n.approval.map((a) => `<div class="mrow"><span>${esc(pollName(a.pollster))}</span><b>${esc(a.approve)}</b>${meter([{ label: 'Approve', v: a.approve, attr: 'data-c="a"' }, { label: 'Disapprove', v: a.disapprove, attr: 'data-c="m"' }])}<b>${esc(a.disapprove)}</b></div>`).join('')}<div class="legend"><span><i data-c="a"></i>Approve</span><span><i data-c="m"></i>Disapprove</span>${src(n.approval[0]?.source)}</div></div>` : ''}
+    ${dir ? `<div class="block"><p class="lead">${esc(dir.raw.wrong_track)}% say the country is on the wrong track</p><div class="mrow"><span>Direction</span><b>${esc(dir.raw.right_direction)}</b>${meter([{ label: 'Right direction', v: dir.raw.right_direction, attr: 'data-c="a"' }, { label: 'Wrong track', v: dir.raw.wrong_track, attr: 'data-c="m"' }])}<b>${esc(dir.raw.wrong_track)}</b></div><div class="legend"><span><i data-c="a"></i>Right direction</span><span><i data-c="m"></i>Wrong track</span>${src(dir.source)}</div>
+      ${ballot ? `<div class="mhead">Which party voters want in Congress${src(ballot.source)}</div><div class="mrow"><span>${esc(pollName(ballot.pollster))}</span><b>${esc(ballot.raw.democratic)}</b>${meter([{ label: 'Democrats', v: ballot.raw.democratic, attr: 'data-p="D"' }, { label: 'Republicans', v: ballot.raw.republican, attr: 'data-p="R"' }])}<b>${esc(ballot.raw.republican)}</b></div>` : ''}</div>` : ''}
+    ${pmCongress()}
+    ${n.top_issues?.length ? `<div class="block"><p class="lead">${esc(n.top_issues[0].issue)} matters most to voters</p>${n.top_issues.map((i) => hbar(i.issue, i.pct, issueMax, i.source)).join('')}</div>` : ''}
+    ${n.disputes?.length ? `<div class="block"><p class="lead" style="margin-bottom:2px">The big fights</p></div>${n.disputes.map((d) => `<details><summary>${iconFor(d.issue)} ${esc(d.issue)}</summary><p>${esc(first(d.now))}${src(d.now_source)}</p><div class="pair"><div data-p="D"><b>Democrats</b><br>${esc(first(d.dem))}${src(d.dem_source)}</div><div data-p="R"><b>Republicans</b><br>${esc(first(d.rep))}${src(d.rep_source)}</div></div></details>`).join('')}` : ''}
+    ${DATA.timeline?.length ? `<div class="block"><p class="lead">What's next</p><div class="tl">${DATA.timeline.map((x) => `<div><b>${esc(x.when)}</b>${esc(x.what)}${src(x.source)}</div>`).join('')}</div></div>` : ''}`;
+};
+const MARK = { live: {}, asked: new Set() };
+const pmSlugs = { dem: 'democratic-presidential-nominee-2028', rep: 'republican-presidential-nominee-2028', win: 'presidential-election-winner-2028', party: 'which-party-wins-2028-us-presidential-election', house: 'which-party-will-win-the-house-in-2028', senate: 'which-party-will-win-the-senate-in-2028' };
+const pmEvent = (slug) => MARK.live[slug] ?? DATA.markets?.events?.[slug] ?? null;
+const pmNorm = (n) => String(n).toLowerCase().replace(/[.']/g, '').replace(/\s+/g, ' ').trim();
+const pmRows = (e) => (e.markets ?? []).map((m) => { const bid = Number(m.bestBid), ask = Number(m.bestAsk); const ok = !m.closed && m.active !== false && m.acceptingOrders !== false && ask > bid && ask - bid <= 0.1 && bid > 0; return { name: m.groupItemTitle || m.question, p: ok ? (bid + ask) / 2 : null }; }).filter((r) => r.p !== null && r.p >= 0.005 && !/^(Person|Other|Candidate)\b/i.test(r.name)).sort((a, b) => b.p - a.p);
+const pmStamp = (slug) => (MARK.live[slug] ? 'Live' : DATA.markets?.as_of ? day(DATA.markets.as_of.slice(0, 10)) : '');
+const pmLink = (slug) => `<a class="src" href="https://polymarket.com/event/${esc(slug)}" target="_blank" rel="noopener" title="polymarket.com" aria-label="See on Polymarket">↗</a>`;
+const pmBars = (slug, title, n = 5) => { const e = pmEvent(slug); if (!e?.rows?.length) return ''; const rows = e.rows.slice(0, n), max = rows[0].p; return `<div class="mhead">${esc(title)}${pmLink(slug)}</div>${rows.map((x) => hbar(x.name, Math.round(x.p * 100), max * 100)).join('')}`; };
+const pmParty = (slug, title) => { const e = pmEvent(slug); if (!e?.rows?.length) return ''; const pick = (re) => e.rows.find((x) => re.test(x.name))?.p; const d = pick(/democrat/i), r = pick(/republican/i); if (d == null || r == null) return ''; const a = Math.round(d * 100), b = Math.round(r * 100); return `<div class="mrow"><span>${esc(title)}${pmLink(slug)}</span><b>${a}</b>${meter([{ label: 'Democrats', v: a, attr: 'data-p="D"' }, { label: 'Republicans', v: b, attr: 'data-p="R"' }])}<b>${b}</b></div>`; };
+const pmNote = (slug) => `<div class="st">Polymarket betting odds, percent. Not a fact or a forecast. ${esc(pmStamp(slug))}</div>`;
+const pmPerson = (name) => { const k = pmNorm(name); const line = (slug, label) => { const x = pmEvent(slug)?.rows?.find((r) => pmNorm(r.name) === k); return x ? `<span class="chip"><b>${Math.round(x.p * 100)}%</b> ${esc(label)}${pmLink(slug)}</span>` : ''; }; const chips = line(pmSlugs.dem, 'Democratic nominee') + line(pmSlugs.rep, 'Republican nominee') + line(pmSlugs.win, 'wins in 2028'); return chips ? `<div class="block" data-pm="person"><h3 class="group">Betting odds</h3><div class="chips">${chips}</div>${pmNote(pmSlugs.win)}</div>` : ''; };
+const pmPresident = () => { const body = pmParty(pmSlugs.party, 'White House') + pmBars(pmSlugs.dem, 'Democratic nominee') + pmBars(pmSlugs.rep, 'Republican nominee') + pmBars(pmSlugs.win, 'Wins in 2028'); return body ? `<div class="block"><p class="lead">What bettors think</p>${body}${pmNote(pmSlugs.win)}</div>` : ''; };
+const pmCongress = () => { const body = pmParty(pmSlugs.party, 'White House') + pmParty(pmSlugs.senate, 'Senate') + pmParty(pmSlugs.house, 'House'); return body ? `<div class="block"><p class="lead">What bettors think about 2028</p>${body}<div class="legend"><span><i data-p="D"></i>Democrats</span><span><i data-p="R"></i>Republicans</span></div>${pmNote(pmSlugs.party)}</div>` : ''; };
+const pmState = (a) => { const slug = DATA.markets?.states?.[a]; const row = slug ? pmParty(slug, '2028') : ''; return row ? `<div class="block"><h3 class="group">Who bettors expect to win here</h3>${row}${pmNote(slug)}</div>` : ''; };
+const pmFetch = (slugs) => { const todo = slugs.filter((s) => s && !MARK.asked.has(s)); if (!todo.length) return; todo.forEach((s) => MARK.asked.add(s)); Promise.allSettled(todo.map((s) => fetch(`https://gamma-api.polymarket.com/events?slug=${encodeURIComponent(s)}`).then((r) => r.json()).then(([e]) => { if (e) MARK.live[s] = { rows: pmRows(e) }; }))).then((all) => { if (all.some((x) => x.status === 'fulfilled')) refreshWindow(); }); };
+const refreshWindow = () => { const body = app.querySelector('.win .winbody'), top = body?.scrollTop ?? 0, open = [...app.querySelectorAll('.win details')].map((d) => d.open); q('.winslot').innerHTML = phone() ? '' : windowHtml(); q('.phoneslot').innerHTML = phone() ? windowHtml() : ''; const next = app.querySelector('.win .winbody'); if (next) next.scrollTop = top; [...app.querySelectorAll('.win details')].forEach((d, i) => { d.open = !!open[i]; }); };
+const pollChart = (p) => { const rows = Object.entries(p.results).filter(([k]) => !/undecided|someone|other|don't know|^none$/i.test(k)).sort((a, b) => b[1] - a[1]).slice(0, 5), max = Math.max(...rows.map(([, v]) => v), 1); return `<div class="mhead">${esc(p.race)}: ${esc(p.pollster)}${src(p.source)} <span class="st" style="font-weight:400">${esc(p.dates)}</span></div>${rows.map(([k, v]) => hbar(k, v, max)).join('')}`; };
+const listPage = () => {
+  if (ui.tab === 'now') return nowPage();
+  if (ui.tab === 'president') {
+    const sorted = [...DATA.people].filter((p) => ui.party === 'all' || partyKey(p) === ui.party).sort((x, y) => last(x.name).localeCompare(last(y.name)));
+    const running = sorted.filter((p) => p.status !== 'ruled_out'), out = sorted.filter((p) => p.status === 'ruled_out');
+    const n = (s) => DATA.people.filter((p) => p.status === s).length;
+    const latest = ['Democratic', 'Republican'].map((r) => DATA.polls.filter((p) => p.race === r).sort((a, b) => String(b.dates).localeCompare(String(a.dates)))[0]).filter(Boolean);
+    return `<div class="block"><p class="lead">No major candidate has declared yet</p><div class="chips"><span class="chip"><b>${n('considering')}</b> considering</span><span class="chip"><b>${n('unstated')}</b> haven't said</span><span class="chip"><b>${n('filed')}</b> long shots filed</span><span class="chip"><b>${n('ruled_out')}</b> said no</span></div></div>
+    <div class="block"><h3 class="group">In office</h3>${(DATA.national ?? []).map((id) => officialRow(id)).join('')}</div>
+    ${latest.length ? `<div class="block"><h3 class="group">Latest polls</h3>${latest.map(pollChart).join('')}</div>` : ''}
+    ${pmPresident()}
+    <div class="block"><h3 class="group">Running</h3><div class="filters"><select data-filter="party" aria-label="Party">${[['all', 'All parties'], ['D', 'Democrats'], ['R', 'Republicans'], ['O', 'Others']].map(([k, l]) => `<option value="${k}"${ui.party === k ? ' selected' : ''}>${l}</option>`).join('')}</select><select data-filter="issue" aria-label="Issue"><option value="">Compare an issue</option>${ISSUES.map(([k, l]) => `<option value="${k}"${ui.issue === k ? ' selected' : ''}>${l}</option>`).join('')}</select></div>${running.map(personRow).join('')}</div>
+    ${out.length ? `<details><summary>Said no (${out.length})</summary>${out.map(personRow).join('')}</details>` : ''}
+    <details><summary>All polls</summary>${DATA.polls.map(pollChart).join('')}</details>
+    ${DATA.thirdTerm ? `<details><summary>Can Trump run again?</summary><p>${esc(first(DATA.thirdTerm.text))}</p><p>${DATA.thirdTerm.sources.map(src).join('')}</p></details>` : ''}
+    ${DATA.third.length ? `<details><summary>Other parties</summary>${DATA.third.map((x) => `<p><b>${esc(x.name)}</b> ${esc(x.status)}${src(x.source)}</p>`).join('')}</details>` : ''}`;
+  }
+  if (ui.tab === 'primaries') {
+    const rows = (l, party) => `<div class="tl">${l.map((c, i) => `<div><b>${c.date ? esc(day(c.date)) : `No. ${i + 1}, no date yet`}</b><button class="linkname" data-open-state="${esc(c.state)}" style="text-decoration:none">${esc(shape[c.state]?.name ?? c.state)}</button></div>`).join('')}</div>`;
+    return `<div class="block"><p class="lead">South Carolina votes first for Democrats. Iowa goes first for Republicans.</p></div><div class="block"><h3 class="group"><span class="dot" data-p="D" style="display:inline-block;margin-right:6px"></span>Democrats${src(DATA.calendar.sources[0])}</h3>${rows(DATA.calendar.dem)}</div><div class="block"><h3 class="group"><span class="dot" data-p="R" style="display:inline-block;margin-right:6px"></span>Republicans${src(DATA.calendar.sources[1])}</h3>${rows(DATA.calendar.gop)}</div><div class="block"><h3 class="group">Conventions</h3>${DATA.calendar.conventions.map((c) => `<div>${esc(c.party)}: ${esc([c.city, c.dates].filter(Boolean).join(', '))}${src(c.source)}</div>`).join('')}</div>`;
+  }
+  const list = ui.tab === 'senate' ? DATA.senate : DATA.governors, D = list.filter((x) => x.party === 'D').length, R = list.filter((x) => x.party === 'R').length;
+  return `<div class="block"><p class="lead">${list.length} ${ui.tab === 'senate' ? 'Senate' : 'governor'} races in 2028</p><div class="mrow"><span>Held by</span><b>${D}</b>${meter([{ label: 'Democrats', v: D, attr: 'data-p="D"' }, { label: 'Republicans', v: R, attr: 'data-p="R"' }])}<b>${R}</b></div><div class="legend"><span><i data-p="D"></i>Democrats</span><span><i data-p="R"></i>Republicans</span></div></div>
+    ${list.map((r) => { const name = r.holder ?? r.incumbent, id = `${r.state}|${name}`, o = official(id); return `<button class="pick has-face" data-open-state="${esc(r.state)}">${face(id, name, r.party, 36)}<b>${esc(shape[r.state]?.name ?? r.state)}</b><span class="st"></span><span class="sub">${esc(name)}${r.plans || r.term_status ? `: ${esc(r.plans ?? r.term_status)}` : ''}</span>${leanV(leanOf(o), true)}</button>`; }).join('')}`;
+};
+const current = () => ui.stack.at(-1);
+const windowHtml = () => {
+  const now = current() ?? (phone() ? { kind: 'list' } : null); if (!now) return '';
+  const off = now.kind === 'official' ? official(now.id) : null;
+  const title = now.kind === 'state' ? shape[now.id].name : now.kind === 'person' ? now.id : off ? off.name : TABS.find(([k]) => k === ui.tab)[1];
+  const body = now.kind === 'state' ? statePage(now.id) : now.kind === 'person' ? personPage(personNamed(now.id)) + (Object.values(DATA.officials ?? {}).filter((o) => o.person === now.id).map((o) => stanceBlocks(o.stances)).join('')) : off ? officialPage(off) : listPage();
+  return `<aside class="win" aria-label="${esc(title)}"><div class="winhead">${ui.stack.length > 1 ? `<button class="icon back" data-back aria-label="Back">${ICON.back}</button>` : ''}<h2>${esc(title)}</h2>${ui.stack.length ? `<button class="icon" data-close aria-label="Close">${ICON.close}</button>` : ''}</div><div class="winbody">${body}</div></aside>`;
+};
+const powerHtml = () => {
+  const p = DATA.now?.power; if (ui.tab !== 'now' || !p || ui.stack.length) return '';
+  const row = (label, v) => (v ? `<span><small>${label}</small><b><i data-p="D">${esc(v.now[0])}</i>–<i data-p="R">${esc(v.now[1])}</i></b> <small style="display:inline">now</small><br><b><i data-p="D">${esc(v.next[0])}</i>–<i data-p="R">${esc(v.next[1])}</i></b> <small style="display:inline">Jan</small></span>` : '');
+  return `<button class="power" data-list>${row('Senate', p.senate)}${row('House', p.house)}${row('Governors', p.governors)}</button>`;
+};
+let scene = null, shownCounties = '', countyToken = 0;
+const loadCounties = (a) => new Promise((done) => {
+  if (window.COUNTYGEO?.[a]) return done(window.COUNTYGEO[a]);
+  const tag = document.createElement('script');
+  tag.src = `counties/${a}.js`;
+  tag.onload = () => done(window.COUNTYGEO?.[a] ?? []);
+  tag.onerror = () => done([]);
+  document.head.append(tag);
+});
+const countyResult = (a, id) => { const r = DATA.county?.[a]?.counties?.[id]; if (!r) return null; const [D, R, total, I = 0] = r; const top = [['D', D], ['R', R], ['I', I]].sort((x, y) => y[1] - x[1]); return { winner: top[0][0], margin_pct: ((top[0][1] - top[1][1]) / total) * 100, D, R, I, total }; };
+const syncReset = () => { q('.reset').hidden = !(scene?.panned() || openState()); };
+const syncScene = () => {
+  if (!scene) return;
+  const open = openState();
+  scene.inset(!phone() && ui.stack.length ? 428 : 0);
+  scene.open(open);
+  syncReset();
+  if (open === shownCounties) return;
+  shownCounties = open;
+  buildTags(); paintScene(); moveTags();
+  const token = ++countyToken;
+  if (!open) { scene.counties(''); return; }
+  loadCounties(open).then((list) => {
+    if (token !== countyToken) return;
+    const s = shape[open], tallest = Math.max(1, ...list.map((c) => DATA.pop?.counties?.[c.id] ?? 0)), peak = Math.max(5, Math.max(s.w, s.hh) * 0.3);
+    scene.counties(open, list.map((c) => { const r = countyResult(open, c.id), people = DATA.pop?.counties?.[c.id] ?? 0; return { ...c, color: css(r ? marginTone(r.winner, r.margin_pct) : '--land'), height: Math.max(0.8, peak * Math.sqrt(people / tallest)) }; }), css('--edge'));
+  });
+};
+const paintScene = () => {
+  if (!scene) return;
+  scene.style(Object.fromEntries(SHAPES.map((s) => [s.abbr, css(tone(s.abbr))])), Object.fromEntries(SHAPES.map((s) => [s.abbr, rise(s.abbr)])));
+  scene.theme(css('--edge'), css('--edge-hot'));
+  scene.leadColor(css('--text-3'));
+};
+const render = () => {
+  const full = !!document.fullscreenElement;
+  q('.bar').innerHTML = `${TABS.map(([k, t]) => `<button class="tab" role="tab" data-tab="${k}" aria-selected="${ui.tab === k}">${t}</button>`).join('')}<span class="gap"></span><span class="blurb">${esc(BLURB[ui.tab])}</span><button class="icon list" data-list aria-label="List">${ICON.list}</button>${document.fullscreenEnabled && window.parent !== window && !viewport ? `<button class="icon fs" data-fs aria-label="${full ? 'Exit full screen' : 'Full screen'}">${full ? ICON.shrink : ICON.full}</button>` : ''}`;
+  q('.powerslot').innerHTML = powerHtml();
+  q('.winslot').innerHTML = phone() ? '' : windowHtml();
+  q('.phoneslot').innerHTML = phone() ? windowHtml() : '';
+  syncScene();
+  const now = current();
+  if (ui.tab === 'now' && !now?.id) pmFetch([pmSlugs.party, pmSlugs.senate, pmSlugs.house]);
+  if (ui.tab === 'president' || now?.kind === 'person') pmFetch([pmSlugs.dem, pmSlugs.rep, pmSlugs.win, pmSlugs.party]);
+  if (openState() && now?.kind === 'state') pmFetch([DATA.markets?.states?.[openState()]]);
+  postHeight();
+};
+const setTab = (k) => { ui.tab = k; ui.stack = !phone() ? [{ kind: 'list' }] : []; ui.hover = ''; shownCounties = shownCounties && '\u0000'; hideCard(); render(); buildTags(); paintScene(); moveTags(); };
+let hideTimer = 0;
+const hideCard = () => { clearTimeout(hideTimer); cardKey = ''; q('.card').classList.remove('on'); };
+const show = (page) => { hideCard(); ui.stack = [page]; render(); };
+const push = (page) => { ui.stack.push(page); render(); };
+let cardKey = '', cardX = 0, cardY = 0, goalX = 0, goalY = 0, cardFrame = 0, cardW = 300, cardH = 200;
+const followCard = () => {
+  cardFrame = 0;
+  const k = matchMedia('(prefers-reduced-motion: reduce)').matches ? 1 : 0.24;
+  cardX += (goalX - cardX) * k; cardY += (goalY - cardY) * k;
+  q('.card').style.transform = `translate3d(${cardX.toFixed(1)}px, ${cardY.toFixed(1)}px, 0)`;
+  if (Math.abs(goalX - cardX) + Math.abs(goalY - cardY) > 0.3) cardFrame = requestAnimationFrame(followCard);
+};
+const placeCard = (x, y, html, key = html) => {
+  if (phone()) return;
+  const stage = q('.stage'), card = q('.card'), box = stage.getBoundingClientRect(), wasOn = card.classList.contains('on');
+  clearTimeout(hideTimer);
+  if (key !== cardKey) { cardKey = key; card.innerHTML = html; cardW = card.offsetWidth; cardH = card.offsetHeight; }
+  card.classList.add('on');
+  const free = box.width - (ui.stack.length ? 436 : 0), rx = x - box.left, ry = y - box.top;
+  const left = rx + 20 + cardW > free - 8 ? rx - 20 - cardW : rx + 20;
+  goalX = Math.max(8, Math.min(left, free - cardW - 8));
+  goalY = Math.max(52, Math.min(ry - 24, box.height - cardH - 8));
+  if (!wasOn) { cardX = goalX; cardY = goalY; }
+  if (!cardFrame) cardFrame = requestAnimationFrame(followCard);
+};
+const leaveSoon = () => { clearTimeout(hideTimer); hideTimer = setTimeout(() => { ui.hover = ''; scene?.hover(''); hideCard(); q('canvas.gl').classList.remove('hot'); }, 110); };
+let moveFrame = 0, lastX = 0, lastY = 0;
+let drag = null, dragged = false;
+const hoverAt = () => {
+  moveFrame = 0;
+  if (drag?.on) return;
+  const x = lastX, y = lastY, r = q('.stage').getBoundingClientRect();
+  scene.tilt((x - r.left) / r.width - 0.5, (y - r.top) / r.height - 0.5);
+  const id = scene.pickCounty(x, y);
+  if (id) {
+    const open = openState(), geo = window.COUNTYGEO?.[open]?.find((c) => c.id === id), res = countyResult(open, id), people = DATA.pop?.counties?.[id];
+    q('canvas.gl').classList.add('hot');
+    placeCard(x, y, `<div class="title">${esc(geo?.name ?? '')}</div>${people ? `<div class="stats"><span><b>${people.toLocaleString()}</b> people</span></div>` : ''}${res ? resRow(DATA.county[open].race, [res.D && `${res.D.toLocaleString()} D`, res.R && `${res.R.toLocaleString()} R`, res.I && `${res.I.toLocaleString()} non-party`].filter(Boolean).join(', '), res.winner, res.margin_pct) : ''}`, `c${id}`);
+    return;
+  }
+  const a = scene.pick(x, y);
+  q('canvas.gl').classList.toggle('hot', !!a);
+  if (!a) { if (ui.hover) leaveSoon(); return; }
+  if (a !== ui.hover) { ui.hover = a; scene.hover(a); }
+  placeCard(x, y, hoverCard(a), a);
+};
+const endDrag = () => { drag = null; q('canvas.gl').classList.remove('dragging'); };
+q('canvas.gl').addEventListener('mousedown', (e) => e.preventDefault());
+q('canvas.gl').addEventListener('pointerdown', (e) => {
+  dragged = false;
+  if (e.pointerType !== 'touch' && e.button === 0 && scene) drag = { id: e.pointerId, x: e.clientX, y: e.clientY, on: false };
+});
+q('canvas.gl').addEventListener('pointerup', endDrag);
+q('canvas.gl').addEventListener('pointercancel', endDrag);
+q('canvas.gl').addEventListener('pointermove', (e) => {
+  if (e.pointerType === 'touch' || !scene) return;
+  if (drag && !(e.buttons & 1)) endDrag();
+  if (drag?.id === e.pointerId) {
+    const dx = e.clientX - drag.x, dy = e.clientY - drag.y;
+    if (!drag.on && Math.hypot(dx, dy) < 4) return;
+    if (!drag.on) {
+      drag.on = dragged = true;
+      q('canvas.gl').setPointerCapture(e.pointerId);
+      q('canvas.gl').classList.add('dragging');
+      q('canvas.gl').classList.remove('hot');
+      ui.hover = ''; scene.hover(''); hideCard();
+    }
+    drag.x = e.clientX; drag.y = e.clientY;
+    scene.pan(dx, dy);
+    syncReset();
+    return;
+  }
+  lastX = e.clientX; lastY = e.clientY;
+  if (!moveFrame) moveFrame = requestAnimationFrame(hoverAt);
+});
+q('canvas.gl').addEventListener('pointerleave', leaveSoon);
+q('canvas.gl').addEventListener('click', (e) => {
+  if (dragged) { dragged = false; return; }
+  if (scene?.pickCounty(e.clientX, e.clientY)) return;
+  const a = scene?.pick(e.clientX, e.clientY);
+  if (!a) { if (openState()) { ui.stack = []; render(); } return; }
+  hideCard();
+  if (current()?.kind === 'state' && current().id === a) { ui.stack = []; return render(); }
+  show({ kind: 'state', id: a });
+});
+app.addEventListener('focusin', (e) => {
+  const b = e.target.closest?.('[data-key-state]'); if (!b || !scene) return;
+  const s = shape[b.dataset.keyState], p = scene.project(s.cx, s.cy, scene.topOf(s.abbr)), r = q('.stage').getBoundingClientRect();
+  ui.hover = s.abbr; scene.hover(s.abbr); placeCard(r.left + p.x, r.top + p.y, hoverCard(s.abbr));
+});
+app.addEventListener('focusout', (e) => { if (e.target.closest?.('[data-key-state]')) leaveSoon(); });
+app.addEventListener('click', (e) => {
+  const t = e.target; if (!(t instanceof Element) || t.closest('a') || t.matches('canvas.gl')) return;
+  const tab = t.closest('[data-tab]'); if (tab) return setTab(tab.dataset.tab);
+  if (t.closest('[data-reset]')) { scene?.resetPan(); ui.stack = ui.stack.filter((p) => p.kind !== 'state'); hideCard(); return render(); }
+  if (t.closest('[data-list]')) { ui.stack = current()?.kind === 'list' ? [] : [{ kind: 'list' }]; hideCard(); return render(); }
+  if (t.closest('[data-fs]')) { if (document.fullscreenElement) document.exitFullscreen(); else document.documentElement.requestFullscreen().catch(() => {}); return; }
+  if (t.closest('[data-close]')) { ui.stack = []; return render(); }
+  if (t.closest('[data-back]')) { ui.stack.pop(); return render(); }
+  const key = t.closest('[data-key-state]'); if (key) return show({ kind: 'state', id: key.dataset.keyState });
+  const off = t.closest('[data-open-official]');
+  if (off) { const o = official(off.dataset.openOfficial), page = o?.person ? { kind: 'person', id: o.person } : { kind: 'official', id: off.dataset.openOfficial }; hideCard(); return t.closest('.win') ? push(page) : show(page); }
+  const person = t.closest('[data-open-person], .tag[data-person]');
+  if (person) { const id = person.dataset.openPerson ?? person.dataset.person; hideCard(); return t.closest('.win') ? push({ kind: 'person', id }) : show({ kind: 'person', id }); }
+  const st = t.closest('[data-open-state]'); if (st) return push({ kind: 'state', id: st.dataset.openState });
+});
+app.addEventListener('change', (e) => { const f = e.target.dataset?.filter; if (f) { ui[f] = e.target.value; render(); } });
+addEventListener('keydown', (e) => { if (e.key === 'Escape' && ui.stack.length) { ui.stack.pop(); render(); } });
+document.addEventListener('fullscreenchange', () => { setLayout(); render(); });
+matchMedia('(prefers-color-scheme: dark)').addEventListener('change', paintScene);
+let viewport = window.parent === window;
+function setLayout() { document.documentElement.classList.toggle('full', viewport || !!document.fullscreenElement); }
+function postHeight() { if (viewport) return; parent.postMessage({ abstractsHeight: Math.ceil(document.body.getBoundingClientRect().height) }, '*'); }
+addEventListener('message', (e) => {
+  if (e.source !== parent || e.data?.abstractsLayout !== 'viewport') return;
+  viewport = true; setLayout(); parent.postMessage({ abstractsLayout: 'viewport' }, '*'); render(); scene?.fit();
+});
+if (window.parent !== window) parent.postMessage({ abstractsLayout: 'request' }, '*');
+document.getElementById('keys').innerHTML = SHAPES.map((s) => `<button data-key-state="${s.abbr}">${esc(s.name)}</button>`).join('');
+setLayout();
+try { scene = window.MapScene.create(q('canvas.gl'), SHAPES, moveTags); } catch { q('canvas.gl').remove(); ui.stack = []; }
+let wasPhone = phone(), wasWide = app.clientWidth >= 760, redraw = 0;
+new ResizeObserver(() => { cancelAnimationFrame(redraw); redraw = requestAnimationFrame(() => { const wide = app.clientWidth >= 760; if (wide !== wasWide) { wasWide = wide; buildTags(); } if (phone() !== wasPhone) { wasPhone = phone(); render(); } moveTags(); postHeight(); }); }).observe(document.documentElement);
+buildTags(); paintScene(); render(); moveTags();
+if (!scene) { ui.stack = [{ kind: 'list' }]; render(); }
+</script>
+</body>
+</html>

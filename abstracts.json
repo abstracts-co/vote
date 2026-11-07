@@ -4,5 +4,11 @@
   "description": "current state of american politics contribute with any notes or suggestions",
   "rules": [],
   "roles": [],
-  "categories": []
+  "categories": [],
+  "aboutArtifact": "vote-map",
+  "pinnedArtifacts": [
+    "vote-map"
+  ],
+  "avatar": "assets/logo.png",
+  "cover": "assets/banner.webp"
 }
