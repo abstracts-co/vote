@@ -1,1 +1,1 @@
-{ "name": "vote-map", "private": true, "type": "module", "scripts": { "build": "node build.mjs", "check": "node check.mjs" }, "dependencies": { "esbuild": "0.24.0", "three": "0.169.0" } }
+{ "name": "vote-map", "private": true, "type": "module", "scripts": { "build": "node build.mjs", "check": "node check.mjs", "find": "node find.mjs", "face": "node add-face.mjs", "smoke": "node smoke.mjs" }, "dependencies": { "esbuild": "0.24.0", "three": "0.169.0" }, "devDependencies": { "puppeteer-core": "24.10.0", "sharp": "0.34.2" } }

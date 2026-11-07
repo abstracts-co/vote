@@ -69,7 +69,9 @@ export function create(canvas, shapes, onFrame) {
   const leads = new LineSegments(new BufferGeometry(), new LineBasicMaterial({ transparent: true, opacity: 0.55 }));
   scene.add(leads);
 
-  const view = { fx: 0, fy: 0, gfx: 0, gfy: 0, bfx: 0, bfy: 0, w: 1, h: 1, dist: 2000, base: 2000, tx: 0, ty: 0, gtx: 0, gty: 0, gdist: 2000, shift: 0, gshift: 0, px: 0, py: 0, gpx: 0, gpy: 0, panx: 0, pany: 0, gpanx: 0, gpany: 0 };
+  const view = { fx: 0, fy: 0, gfx: 0, gfy: 0, bfx: 0, bfy: 0, w: 1, h: 1, dist: 2000, base: 2000, tx: 0, ty: 0, gtx: 0, gty: 0, gdist: 2000, shift: 0, gshift: 0, px: 0, py: 0, gpx: 0, gpy: 0, panx: 0, pany: 0, gpanx: 0, gpany: 0, zoom: 1, gzoom: 1 };
+  let raised = {};
+  const liftFor = (a) => (a === open ? 10 : (raised[a] ?? 0) + (a === hover ? 5 : 0));
   const ray = new Raycaster(), ndc = new Vector2(), tmp = new Vector3();
   const sample = shapes.flatMap((s) => s.polys.flatMap((p) => p[0].filter((_, i) => i % 6 === 0).map(([x, y]) => [tox(x), toy(y)])));
   let measureFn = null, roomNow = null, county = null, liftDirty = false, shadowOnce = true;
@@ -79,6 +81,7 @@ export function create(canvas, shapes, onFrame) {
     const a = TILT + view.py * 0.03, az = view.px * 0.05;
     camera.position.set(view.tx + Math.sin(az) * Math.sin(a) * view.dist, view.ty - Math.cos(az) * Math.sin(a) * view.dist, Math.cos(a) * view.dist);
     camera.lookAt(view.tx, view.ty, 12);
+    camera.zoom = view.zoom;
     camera.setViewOffset(view.w, view.h, view.shift + view.fx - view.panx, view.fy - view.pany, view.w, view.h);
     camera.updateMatrixWorld();
   };
@@ -89,8 +92,9 @@ export function create(canvas, shapes, onFrame) {
     camera.aspect = w / h;
     camera.updateProjectionMatrix();
     view.w = w; view.h = h;
-    const top = w < 760 ? 0 : 44, foot = w < 760 ? 0 : 84, roomW = Math.max(0.2, (w - inset) / w), roomH = (h - top - foot) / h;
+    const top = w < 760 ? 46 : 100, foot = w < 760 ? 44 : 84, roomW = Math.max(0.2, (w - inset) / w), roomH = (h - top - foot) / h;
     const measure = (d, pts = sample, tx = 0, ty = 0, zTop = 44) => {
+      camera.zoom = 1;
       camera.clearViewOffset();
       camera.position.set(tx, ty - Math.sin(TILT) * d, Math.cos(TILT) * d);
       camera.lookAt(tx, ty, 12);
@@ -118,7 +122,7 @@ export function create(canvas, shapes, onFrame) {
   };
   const aim = () => {
     const st = open && byAbbr[open];
-    if (st && measureFn) {
+    if (st && st.s.polys.length && measureFn) {
       const pts = st.s.polys.flatMap((p) => p[0].filter((_, i, l) => i % Math.max(1, Math.floor(l.length / 60)) === 0).map(([x, y]) => [tox(x), toy(y)]));
       const xs = pts.map((p) => p[0]), ys = pts.map((p) => p[1]);
       const tx = (Math.min(...xs) + Math.max(...xs)) / 2, ty = (Math.min(...ys) + Math.max(...ys)) / 2;
@@ -141,6 +145,8 @@ export function create(canvas, shapes, onFrame) {
     let moving = false, shadow = false;
     const near = (a, b, e = 0.02) => { if (Math.abs(a - b) > e) moving = true; return a + (b - a) * k; };
     for (const key of ['tx', 'ty', 'dist', 'shift', 'fx', 'fy', 'panx', 'pany']) view[key] = near(view[key], view[`g${key}`], 0.05);
+    if (Math.abs(view.zoom - view.gzoom) > 0.002) moving = true;
+    view.zoom += (view.gzoom - view.zoom) * k;
     for (const key of ['px', 'py']) { const goal = view[`g${key}`]; if (Math.abs(view[key] - goal) > 0.002) moving = true; view[key] += (goal - view[key]) * (reduced() ? 1 : 0.07); }
     if (county) { if (Math.abs(county.group.scale.z - 1) > 0.002) shadow = true; county.group.scale.z = near(county.group.scale.z, 1, 0.002); }
     for (const a in byAbbr) {
@@ -155,7 +161,7 @@ export function create(canvas, shapes, onFrame) {
       st.color.lerp(st.goalColor, k);
       st.top.color.copy(st.color);
       st.side.color.copy(st.color).multiplyScalar(0.48);
-      const hot = a === hover || a === open;
+      const hot = a === hover || a === open || raised[a];
       st.line.material.color.copy(hot ? hl : edgeColor);
       st.line.material.opacity = hot ? 1 : 0.6;
     }
@@ -228,16 +234,29 @@ export function create(canvas, shapes, onFrame) {
       wake();
     },
     theme(edge, active) { edgeColor.set(edge); hl.set(active); wake(); },
-    hover(a) { if (a === hover) return; if (byAbbr[hover]) byAbbr[hover].liftGoal = hover === open ? 10 : 0; hover = a; if (byAbbr[a]) byAbbr[a].liftGoal = 5; wake(); },
+    hover(a) { if (a === hover) return; const was = hover; hover = a; if (byAbbr[was]) byAbbr[was].liftGoal = liftFor(was); if (byAbbr[a]) byAbbr[a].liftGoal = liftFor(a); wake(); },
+    raise(map) { raised = map; for (const a in byAbbr) byAbbr[a].liftGoal = liftFor(a); wake(); },
+    zoomAt(f, x, y, ease) {
+      const z1 = view.gzoom, z2 = Math.max(1, Math.min(8, z1 * f));
+      if (z2 === z1) return;
+      const move = (b, goal, mid, at) => b - ((mid - at) + (z2 * (at - mid + (b - goal))) / z1);
+      view.gpanx = move(view.gshift + view.gfx, view.gpanx, view.w / 2, x);
+      view.gpany = move(view.gfy, view.gpany, view.h / 2, y);
+      if (z2 === 1 && f < 1) view.gpanx = view.gpany = 0;
+      view.gzoom = z2;
+      if (!ease) { view.zoom = z2; view.panx = view.gpanx; view.pany = view.gpany; }
+      wake();
+    },
+    zoomLevel() { return view.gzoom; },
     pan(dx, dy) {
-      const far = 0.6 * Math.max(1, view.base / view.dist), clamp = (v, max) => Math.max(-max, Math.min(max, v));
+      const far = 0.6 * Math.max(1, view.base / view.dist) * view.gzoom, clamp = (v, max) => Math.max(-max, Math.min(max, v));
       view.panx = view.gpanx = clamp(view.gpanx + dx, view.w * far);
       view.pany = view.gpany = clamp(view.gpany + dy, view.h * far);
       wake();
     },
-    resetPan() { view.gpanx = view.gpany = 0; wake(); },
-    panned() { return !!(view.gpanx || view.gpany); },
-    open(a) { if (a !== open) view.gpanx = view.gpany = 0; if (byAbbr[open] && open !== a) byAbbr[open].liftGoal = 0; open = a; if (byAbbr[a]) byAbbr[a].liftGoal = 10; aim(); wake(); },
+    resetPan() { view.gpanx = view.gpany = 0; view.gzoom = 1; wake(); },
+    panned() { return !!(view.gpanx || view.gpany) || view.gzoom !== 1; },
+    open(a) { if (a !== open) { view.gpanx = view.gpany = 0; view.gzoom = 1; } const was = open; open = a; if (byAbbr[was]) byAbbr[was].liftGoal = liftFor(was); if (byAbbr[a]) byAbbr[a].liftGoal = liftFor(a); aim(); wake(); },
     inset(px) { if (px === inset) return; inset = px; fit(); },
     tilt(nx, ny) { if (reduced()) return; view.gpx = nx; view.gpy = ny; wake(); },
     pick(cx, cy) {

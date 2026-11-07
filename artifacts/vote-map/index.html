@@ -7,20 +7,23 @@
 <style>
 :root {
   color-scheme: light dark;
-  --bg: #f5f2ec; --bg-2: #faf8f4; --surface: #ffffff; --text: #1c1b19; --text-2: #4a463f; --text-3: #6f695f;
-  --border: #e9e4da; --border-strong: #d6cfc2; --accent: #8f4c0e; --accent-fill: #d97a1e;
-  --land: #d6cfc2; --edge: #ffffff; --edge-hot: #1c1b19;
-  --i1: #f6d39f; --i2: #eeb25e; --i3: #d98a1f; --d1: #a2c4ea; --d2: #4f8fd6; --d3: #1f5fb4; --r1: #f1b5aa; --r2: #e0604c; --r3: #b4301f;
-  --shadow: 0 1px 2px rgb(28 27 25 / 0.08), 0 12px 32px rgb(28 27 25 / 0.18);
-  --sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
+  --bg: #f4f5f8; --bg-2: #ffffff; --surface: #ffffff; --glass: rgb(255 255 255 / 0.82); --text: #0d0f14; --text-2: #4b5160; --text-3: #737a8a;
+  --border: rgb(13 15 20 / 0.08); --border-strong: rgb(13 15 20 / 0.14); --accent: #2b5fd9; --accent-fill: #d97a1e;
+  --land: #d9dce4; --edge: #ffffff; --edge-hot: #0d0f14;
+  --i1: #f6d39f; --i2: #eeb25e; --i3: #d98a1f; --d1: #a2c4ea; --d2: #4f8fd6; --d3: #1f5fb4; --r1: #f1b5aa; --r2: #e0604c; --r3: #c23321;
+  --blue: #2563eb; --red: #dc2f22; --gray: #a4a9b5; --both: #7b5fd0; --halo-d: rgb(37 99 235 / 0.16); --halo-r: rgb(220 47 34 / 0.14);
+  --shadow: 0 1px 2px rgb(13 15 20 / 0.06), 0 16px 40px rgb(13 15 20 / 0.14);
+  --out: cubic-bezier(0.23, 1, 0.32, 1);
+  --sans: ui-sans-serif, system-ui, -apple-system, "SF Pro Display", "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
 }
 @media (prefers-color-scheme: dark) {
   :root {
-    --bg: #0e0e0d; --bg-2: #1b1b18; --surface: #1a1a18; --text: #eeebe4; --text-2: #bdb8ae; --text-3: #8a857b;
-    --border: #2c2b27; --border-strong: #3d3b34; --accent: #f6c38a; --accent-fill: #f0a04b;
-    --land: #33312c; --edge: #0e0e0d; --edge-hot: #ffffff;
-    --i1: #f3cf94; --i2: #e9a94c; --i3: #c97f18; --d1: #7fb0e6; --d2: #3f86d6; --d3: #1f5fb4; --r1: #f0a596; --r2: #e0604c; --r3: #b4301f;
-    --shadow: 0 1px 2px rgb(0 0 0 / 0.5), 0 14px 36px rgb(0 0 0 / 0.6);
+    --bg: #07080b; --bg-2: #10131a; --surface: #12151c; --glass: rgb(14 16 22 / 0.72); --text: #f2f4f8; --text-2: #aab0bd; --text-3: #767d8c;
+    --border: rgb(255 255 255 / 0.07); --border-strong: rgb(255 255 255 / 0.13); --accent: #8db8ff; --accent-fill: #f0a04b;
+    --land: #20242d; --edge: #07080b; --edge-hot: #ffffff;
+    --i1: #f3cf94; --i2: #e9a94c; --i3: #c97f18; --d1: #8db8ff; --d2: #4d8dff; --d3: #2466ea; --r1: #ffb0a4; --r2: #ff6a5b; --r3: #e0352a;
+    --blue: #4d8dff; --red: #ff5a4d; --gray: #4f5564; --both: #9a82e8; --halo-d: rgb(77 141 255 / 0.2); --halo-r: rgb(255 90 77 / 0.18);
+    --shadow: 0 1px 2px rgb(0 0 0 / 0.5), 0 24px 60px rgb(0 0 0 / 0.65);
   }
 }
 * { box-sizing: border-box; }
@@ -34,164 +37,410 @@ button { background: none; border: 0; padding: 0; cursor: pointer; -webkit-tap-h
 .sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); }
 #app { position: relative; display: flex; flex-direction: column; }
 html.full #app { height: 100dvh; }
-.bar { position: absolute; z-index: 4; top: 0; left: 0; right: 0; display: flex; align-items: stretch; height: 44px; background: var(--bg); border-bottom: 1px solid var(--border); }
-.tab { padding: 0 13px; font-size: 14px; font-weight: 550; color: var(--text-3); box-shadow: inset 0 -2px 0 transparent; }
-.tab[aria-selected="true"] { color: var(--text); box-shadow: inset 0 -2px 0 var(--accent-fill); }
-.bar .gap { flex: 1; }
-.blurb { align-self: center; padding: 0 6px 0 12px; font-size: 13px; line-height: 1.25; color: var(--text-2); text-align: right; min-width: 0; }
-.icon { display: inline-grid; place-items: center; width: 44px; height: 44px; color: var(--text-2); }
+.bar { position: absolute; z-index: 4; top: 10px; left: 10px; display: flex; align-items: center; gap: 2px; height: 44px; padding: 4px; border-radius: 999px; background: var(--glass); border: 1px solid var(--border); -webkit-backdrop-filter: blur(18px); backdrop-filter: blur(18px); }
+.tab { position: relative; z-index: 1; height: 34px; padding: 0 14px; border-radius: 999px; font-size: 14px; font-weight: 550; color: var(--text-3); transition: color 160ms ease; }
+.tab[aria-selected="true"] { color: var(--text); }
+.tabthumb { position: absolute; z-index: 0; top: 4px; height: 34px; border-radius: 999px; background: var(--border-strong); transition: transform 260ms var(--out), width 260ms var(--out); }
+.bar .gap { display: none; }
+.icon { display: inline-grid; place-items: center; width: 44px; height: 44px; color: var(--text-2); transition: transform 160ms var(--out); }
+.icon:active { transform: scale(0.94); }
+.bar .icon { width: 34px; height: 34px; }
 .icon svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
-.stage { position: relative; flex: 1; min-height: 0; overflow: hidden; aspect-ratio: 975 / 640; background: radial-gradient(ellipse at 50% 42%, var(--bg-2), var(--bg) 72%); }
+.stage { position: relative; flex: 1; min-height: 0; overflow: hidden; aspect-ratio: 975 / 640; background: radial-gradient(ellipse at 50% 46%, var(--bg-2), var(--bg) 70%); }
 html.full .stage { aspect-ratio: auto; }
 canvas.gl { position: absolute; inset: 0; width: 100%; height: 100%; display: block; cursor: grab; touch-action: pan-y; }
 canvas.gl.hot { cursor: pointer; }
 canvas.gl.dragging { cursor: grabbing; }
-.reset { position: absolute; z-index: 3; top: 52px; left: 8px; border-radius: 12px; background: var(--surface); border: 1px solid var(--border-strong); box-shadow: var(--shadow); }
-.reset[hidden] { display: none; }
+.reset { }
+.reset[hidden], .mapseg[hidden], .finder[hidden] { display: none; }
 .tags { position: absolute; inset: 0; pointer-events: none; overflow: hidden; }
 .tag { position: absolute; left: 0; top: 0; white-space: nowrap; font-size: 12px; line-height: 14px; font-weight: 650; color: #fff; text-shadow: 0 0 3px rgb(0 0 0 / 0.85), 0 1px 2px rgb(0 0 0 / 0.75); will-change: transform; }
-.tag[data-person] { pointer-events: auto; cursor: pointer; }
+.tag.off { pointer-events: auto; cursor: pointer; padding: 2px 6px; margin: -2px -6px; border-radius: 8px; }
 .tag.off { color: var(--text); text-shadow: 0 0 3px var(--bg), 0 0 3px var(--bg); }
-.power { position: absolute; z-index: 3; left: 12px; bottom: 12px; display: flex; gap: 18px; padding: 10px 14px; border-radius: 12px; background: var(--surface); border: 1px solid var(--border-strong); box-shadow: var(--shadow); text-align: left; }
+.power { position: absolute; z-index: 3; left: 12px; bottom: 12px; display: flex; gap: 18px; padding: 10px 16px; border-radius: 18px; background: var(--glass); border: 1px solid var(--border); -webkit-backdrop-filter: blur(18px); backdrop-filter: blur(18px); text-align: left; transition: transform 160ms var(--out); }
+.power:active { transform: scale(0.98); }
 .res { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 1px 10px; padding: 8px 0; }
 .res + .res { border-top: 1px solid var(--border); }
 .res .who { font-size: 13px; color: var(--text-2); min-width: 0; }
 .res h3 { margin: 0; font-size: 13px; color: var(--text); }
 .linkname { font-weight: 600; text-decoration: underline; text-underline-offset: 2px; }
-h3.group { font-size: 14px; color: var(--text); margin-bottom: 4px; }
-.res .num { font-weight: 700; font-size: 14px; white-space: nowrap; }
-.res .num[data-p="D"] { color: var(--d3); } .res .num[data-p="R"] { color: var(--r3); }
-.lean { grid-column: 1 / -1; position: relative; display: block; height: 8px; margin-top: 5px; border-radius: 4px; background: var(--border); overflow: hidden; }
-.lean::after { content: ""; position: absolute; left: 50%; top: 0; bottom: 0; width: 2px; margin-left: -1px; background: var(--text-3); }
 .face { flex: none; display: inline-block; border-radius: 50%; background-image: url(faces.webp); background-repeat: no-repeat; box-shadow: 0 0 0 2px var(--text-3); align-self: center; }
-.face[data-p="D"] { box-shadow: 0 0 0 2px var(--d3); } .face[data-p="R"] { box-shadow: 0 0 0 2px var(--r3); }
+.face[data-p="D"] { box-shadow: 0 0 0 2px var(--blue); } .face[data-p="R"] { box-shadow: 0 0 0 2px var(--red); }
 .face.none { display: inline-grid; place-items: center; background: var(--border); background-image: none; color: var(--text-2); font-weight: 700; }
-.pick.has-face { grid-template-columns: 36px minmax(0, 1fr) auto; gap: 0 12px; }
-.pick.has-face .face { grid-row: 1 / span 4; align-self: start; margin-top: 2px; }
 .who-head { display: flex; gap: 12px; align-items: center; }
 .tag .face { vertical-align: middle; margin-right: 4px; }
-.lean.thin { height: 4px; margin-top: 4px; }
-.lean.est i { opacity: 0.6; }
-.pick .lean { grid-column: 2 / 4; }
 .leanrow + .leanrow { margin-top: 10px; }
 .ends { display: flex; justify-content: space-between; align-items: baseline; font-size: 12px; color: var(--text-3); }
 .ends b { color: var(--text); font-size: 14px; }
-.lean i { position: absolute; top: 0; bottom: 0; background: var(--text-3); }
-.lean i[data-p="D"] { right: 50%; background: var(--d3); border-radius: 4px 0 0 4px; }
-.lean i[data-p="R"] { left: 50%; background: var(--r3); border-radius: 0 4px 4px 0; }
 .power > span { display: block; min-width: 84px; }
 .power small { display: block; font-size: 12px; color: var(--text-3); }
 .power b { font-size: 15px; font-weight: 700; white-space: nowrap; }
 .power i { font-style: normal; } .power i[data-p="D"] { color: var(--d3); } .power i[data-p="R"] { color: var(--r3); }
-.card, .win { background: var(--surface); border: 1px solid var(--border-strong); box-shadow: var(--shadow); }
-.card { position: absolute; z-index: 5; width: 300px; max-width: calc(100% - 16px); max-height: calc(100% - 16px); overflow: hidden; border-radius: 12px; padding: 12px; opacity: 0; transition: opacity 120ms ease-out; pointer-events: none; left: 0; top: 0; will-change: transform; }
+.card, .win { background: var(--glass); border: 1px solid var(--border); box-shadow: var(--shadow); -webkit-backdrop-filter: blur(22px) saturate(1.3); backdrop-filter: blur(22px) saturate(1.3); }
+.card { position: absolute; z-index: 5; width: 300px; max-width: calc(100% - 16px); max-height: calc(100% - 16px); overflow: hidden; border-radius: 18px; padding: 14px; opacity: 0; transition: opacity 120ms ease-out; pointer-events: none; left: 0; top: 0; will-change: transform; }
 .card.on { opacity: 1; }
-.win { position: absolute; z-index: 6; top: 52px; right: 8px; bottom: 8px; width: 420px; max-width: calc(100% - 16px); border-radius: 14px; display: flex; flex-direction: column; overflow: hidden; }
-.winhead { flex: none; display: flex; align-items: center; min-height: 44px; border-bottom: 1px solid var(--border); }
-.winhead h2 { flex: 1; min-width: 0; margin: 0; padding: 0 12px; font-size: 16px; font-weight: 700; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.win { position: absolute; z-index: 6; top: 10px; right: 10px; bottom: 10px; width: 400px; max-width: calc(100% - 20px); border-radius: 24px; display: flex; flex-direction: column; overflow: hidden; }
+.winhead { flex: none; display: flex; align-items: center; min-height: 56px; padding: 0 6px 0 8px; }
+.winhead h2 { flex: 1; min-width: 0; margin: 0; padding: 0 10px; font-size: 20px; font-weight: 650; letter-spacing: -0.015em; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .winhead .back + h2 { padding-left: 0; }
-.winbody { flex: 1; overflow: auto; padding: 4px 12px 16px; overscroll-behavior: contain; }
+.winbody { flex: 1; overflow: auto; padding: 0 18px 20px; overscroll-behavior: contain; }
 h3 { margin: 0 0 3px; font-size: 12px; font-weight: 650; color: var(--text-3); }
 .title { font-size: 16px; font-weight: 700; line-height: 1.25; }
 .stats { display: flex; flex-wrap: wrap; gap: 2px 12px; margin-top: 3px; font-size: 13px; color: var(--text-2); }
 .stats b { color: var(--text); font-weight: 650; }
 .kv { display: grid; grid-template-columns: 84px minmax(0, 1fr); gap: 2px 8px; align-items: baseline; padding: 8px 0 0; }
 .kv > span:first-child { font-size: 12px; color: var(--text-3); }
-.block { padding: 10px 0; border-top: 1px solid var(--border); }
-.block:first-child { border-top: 0; }
 .block > div + div { margin-top: 4px; }
 .src { font-size: 12px; color: var(--text-3); text-decoration: none; padding: 0 2px; }
 @media (hover: hover) and (pointer: fine) { .src:hover { color: var(--accent); } }
-.lead { font-size: 15px; font-weight: 650; line-height: 1.3; color: var(--text); margin: 0 0 8px; }
+.lead { font-size: 17px; font-weight: 600; letter-spacing: -0.01em; line-height: 1.3; color: var(--text); margin: 0 0 12px; }
 .hero { display: flex; align-items: baseline; gap: 8px; }
-.hero b { font-size: 34px; line-height: 1; font-weight: 750; letter-spacing: -0.02em; }
+.hero b { font-size: 56px; line-height: 1; font-weight: 600; letter-spacing: -0.035em; font-variant-numeric: tabular-nums; }
 .hero span { font-size: 13px; color: var(--text-2); }
-.meter { display: flex; gap: 2px; flex: 1; height: 12px; min-width: 0; position: relative; }
-.meter i { display: block; min-width: 2px; background: var(--border); }
-.meter i:first-child { border-radius: 4px 0 0 4px; } .meter i:last-of-type { border-radius: 0 4px 4px 0; }
-.meter i[data-p="D"] { background: var(--d3); } .meter i[data-p="R"] { background: var(--r3); } .meter i[data-c="a"] { background: var(--accent-fill); } .meter i[data-c="m"] { background: var(--text-3); }
+.meter { display: flex; gap: 3px; flex: 1; height: 8px; min-width: 0; position: relative; }
+.meter i { display: block; min-width: 2px; background: var(--border-strong); }
+.meter i:first-child { border-radius: 999px 2px 2px 999px; } .meter i:last-of-type { border-radius: 2px 999px 999px 2px; }
+.meter i[data-p="D"] { background: var(--blue); box-shadow: 0 0 12px var(--halo-d); } .meter i[data-p="R"] { background: var(--red); box-shadow: 0 0 12px var(--halo-r); } .meter i[data-c="a"] { background: var(--accent-fill); } .meter i[data-c="m"] { background: var(--text-3); }
 .meter .tick { position: absolute; top: -2px; bottom: -2px; width: 2px; background: var(--text); }
-.mrow { display: grid; grid-template-columns: 62px 30px minmax(0, 1fr) 30px; gap: 6px; align-items: center; font-size: 13px; padding: 3px 0; }
+.mrow { display: grid; grid-template-columns: 84px 28px minmax(0, 1fr) 28px; gap: 6px; align-items: center; font-size: 13px; padding: 3px 0; }
 .mrow > span:first-child { color: var(--text-3); font-size: 12px; }
 .mrow b { font-weight: 650; } .mrow b:last-child { text-align: right; }
 .mhead { font-size: 13px; font-weight: 650; padding-top: 6px; }
 .legend { display: flex; flex-wrap: wrap; gap: 4px 12px; font-size: 12px; color: var(--text-3); padding-top: 6px; }
 .legend i { display: inline-block; width: 9px; height: 9px; border-radius: 50%; margin-right: 4px; }
 .legend i[data-p="D"] { background: var(--d3); } .legend i[data-p="R"] { background: var(--r3); } .legend i[data-c="a"] { background: var(--accent-fill); } .legend i[data-c="m"] { background: var(--text-3); }
-.seats { display: flex; gap: 3px; padding: 2px 0; }
-.seats .dot { width: 14px; height: 14px; }
-.hbar { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr) 34px; gap: 8px; align-items: center; font-size: 13px; padding: 3px 0; }
 .hbar .track { display: block; height: 10px; }
-.hbar .track i { display: block; height: 100%; border-radius: 0 4px 4px 0; background: var(--accent-fill); min-width: 2px; }
+.hbar .track { height: 6px; }
+.hbar .track i { display: block; height: 100%; border-radius: 999px; background: var(--text-2); min-width: 2px; }
 .hbar b { text-align: right; font-weight: 650; }
-.pair { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; margin: 2px 0 10px; }
-.pair > div { padding: 8px 10px; border-radius: 10px; background: var(--bg); font-size: 13px; line-height: 1.35; border-top: 3px solid var(--text-3); }
-.pair > div[data-p="D"] { border-top-color: var(--d3); } .pair > div[data-p="R"] { border-top-color: var(--r3); }
-.tl { position: relative; margin-left: 5px; padding-left: 16px; border-left: 2px solid var(--border); }
-.tl > div { position: relative; padding: 5px 0; font-size: 14px; }
-.tl > div::before { content: ""; position: absolute; left: -22px; top: 11px; width: 10px; height: 10px; border-radius: 50%; background: var(--accent-fill); }
-.tl b { display: block; font-size: 12px; font-weight: 650; color: var(--text-3); }
 .chips { display: flex; flex-wrap: wrap; gap: 6px; }
-.chip { display: inline-flex; gap: 5px; align-items: baseline; padding: 4px 9px; border-radius: 999px; background: var(--bg); border: 1px solid var(--border); font-size: 12px; color: var(--text-2); }
 .chip b { color: var(--text); font-weight: 700; font-size: 13px; }
-.cres { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) 50px; gap: 8px; align-items: center; padding: 5px 0; font-size: 13px; }
-.cres small { display: block; color: var(--text-3); font-size: 12px; }
-.cres .lean { margin: 0; grid-column: auto; }
-.cres .num { text-align: right; font-weight: 700; }
-.cres .num[data-p="D"] { color: var(--d3); } .cres .num[data-p="R"] { color: var(--r3); }
 .fact { display: grid; grid-template-columns: 24px minmax(0, 1fr); gap: 6px; align-items: start; padding: 5px 0; font-size: 14px; }
 .ic { width: 18px; height: 18px; color: var(--text-3); fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; flex: none; }
-.stance { display: grid; grid-template-columns: 24px minmax(0, 1fr); gap: 6px; padding: 8px 0; border-top: 1px solid var(--border); }
-.stance b { display: block; font-size: 13px; font-weight: 650; }
-.stance div { font-size: 14px; line-height: 1.35; }
-.bigname .lean { height: 12px; margin-top: 8px; }
-.pullq { font-size: 15px; line-height: 1.35; }
-details > summary { font-size: 14px; }
 .winbody { overflow-x: hidden; }
 .btns { display: flex; flex-wrap: wrap; gap: 8px; padding-top: 10px; }
 .btns:empty { display: none; }
-.btn { display: inline-flex; align-items: center; min-height: 40px; padding: 0 12px; border: 1px solid var(--border-strong); border-radius: 10px; text-decoration: none; font-size: 14px; font-weight: 550; }
 .btn:active, .pick:active { transform: scale(0.97); }
-.pick { display: grid; width: 100%; grid-template-columns: 10px minmax(0, 1fr) auto; gap: 0 9px; align-items: baseline; text-align: left; padding: 8px 0; min-height: 40px; }
-.pick + .pick { border-top: 1px solid var(--border); }
 .pick b { font-weight: 650; }
-.pick .sub { grid-column: 2 / 4; font-size: 13px; color: var(--text-3); }
-.pick .say { grid-column: 2 / 4; font-size: 14px; color: var(--text); padding-top: 3px; }
 .st { font-size: 12px; color: var(--text-2); }
 .st[data-s="filed"] { color: var(--accent); font-weight: 650; }
 .dot { width: 10px; height: 10px; border-radius: 50%; align-self: center; background: var(--text-3); }
-.dot[data-p="D"] { background: var(--d3); } .dot[data-p="R"] { background: var(--r3); }
-.filters { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; padding: 8px 0; }
-.filters select { min-width: 0; min-height: 44px; border: 1px solid var(--border-strong); border-radius: 10px; background: var(--surface); padding: 0 8px; font-size: 16px; }
-details { border-top: 1px solid var(--border); }
-summary { cursor: pointer; padding: 11px 0; font-weight: 600; }
+.dot[data-p="D"] { background: var(--blue); box-shadow: 0 0 10px var(--halo-d); } .dot[data-p="R"] { background: var(--red); box-shadow: 0 0 10px var(--halo-r); }
 details p { margin: 0 0 10px; font-size: 14px; }
 @media (hover: hover) and (pointer: fine) { .pick:hover b { text-decoration: underline; text-underline-offset: 2px; } .tab:hover { color: var(--text); } }
 @media (prefers-reduced-motion: reduce) { .card { transition: none; } }
-@media (hover: none) { .card { display: none; } }
 @media (max-width: 759px) {
-  .bar { position: static; border-bottom: 1px solid var(--border); }
+  .bar { position: relative; top: 0; left: 0; margin: 10px 10px 0; }
   .reset { top: 8px; }
   .tab { flex: 1; padding: 0 2px; font-size: 13px; }
-  .bar { flex-wrap: wrap; height: auto; }
-  .bar .tab { height: 44px; }
-  .blurb { flex: 0 0 100%; order: 9; text-align: left; padding: 8px 12px; border-top: 1px solid var(--border); }
-  .bar .gap, .bar .list, .bar .fs { display: none; }
+  .bar .list, .bar .fs { display: none; }
+  .itop { flex-wrap: wrap; padding-right: 44px; }
   .stage { flex: none; width: 100%; }
-  html.full .stage { aspect-ratio: 975 / 640; }
-  html.full #app { overflow: auto; }
+    html.full #app { overflow: auto; }
   .power { display: none; }
-  .win { position: static; width: 100%; max-width: none; border: 0; box-shadow: none; border-radius: 0; border-top: 1px solid var(--border); }
+  .win { position: static; width: 100%; max-width: none; border: 0; box-shadow: none; border-radius: 0; background: none; -webkit-backdrop-filter: none; backdrop-filter: none; }
   .win .winbody { overflow: visible; }
   .btn, .pick { min-height: 44px; }
 }
+
+@media (max-width: 900px) and (min-width: 760px) { .win { top: 64px; } }
+.itop .seg { margin-right: 52px; }
+#app.intro-on .bar, #app.intro-on .phoneslot, #app.intro-on .powerslot, #app.intro-on .winslot { visibility: hidden; }
+.introslot[hidden] { display: none; }
+.introslot { position: absolute; z-index: 9; inset: 0; display: grid; place-items: center; padding: 16px; background: rgb(4 5 8 / 0.42); animation: fade 240ms ease-out backwards; }
+.intro { position: relative; isolation: isolate; display: flex; flex-direction: column; gap: 18px; width: min(900px, 100%); max-height: 100%; overflow: hidden auto; padding: 24px; border-radius: 32px; color: var(--text); background: var(--glass); border: 1px solid var(--border-strong); box-shadow: var(--shadow); -webkit-backdrop-filter: blur(34px) saturate(1.5) brightness(0.8); backdrop-filter: blur(34px) saturate(1.5) brightness(0.8); touch-action: pan-y; animation: pop 340ms var(--out) backwards; outline: 0; scrollbar-width: none; }
+.intro::before, .intro::after { content: ""; position: absolute; z-index: -1; width: 70%; aspect-ratio: 1; border-radius: 50%; pointer-events: none; transition: opacity 600ms ease; animation: drift 16s ease-in-out infinite alternate; }
+.intro::before { left: -28%; top: -30%; background: radial-gradient(closest-side, var(--halo-d), transparent); opacity: var(--gd, 0.8); }
+.intro::after { right: -28%; bottom: -34%; background: radial-gradient(closest-side, var(--halo-r), transparent); opacity: var(--gr, 0.8); animation-direction: alternate-reverse; }
+.introslot.leaving { pointer-events: none; animation: fadeout 220ms ease-out both; }
+.introslot.leaving .intro { animation: lift 240ms var(--out) both; }
+@keyframes fade { from { opacity: 0; } }
+@keyframes fadeout { to { opacity: 0; } }
+@keyframes pop { from { opacity: 0; transform: translateY(10px) scale(0.975); filter: blur(4px); } }
+@keyframes lift { to { opacity: 0; transform: scale(1.025); filter: blur(4px); } }
+@keyframes drift { to { transform: translate(8%, 6%) scale(1.12); } }
+@keyframes rise { from { opacity: 0; transform: translateY(10px); } }
+.ipage { display: flex; flex-direction: column; gap: 18px; flex: 1; min-height: 0; }
+.ipage > * { animation: rise 420ms var(--out) backwards; animation-delay: calc(var(--i, 0) * 55ms); }
+.itop { display: flex; align-items: center; gap: 8px; min-height: 44px; }
+.ititle { flex: 1; min-width: 0; }
+.itop h2 { margin: 0; font-size: 26px; font-weight: 600; letter-spacing: -0.025em; line-height: 1.15; }
+.itop p { margin: 2px 0 0; font-size: 14px; line-height: 1.3; color: var(--text-2); }
+.intro .icon { flex: none; border-radius: 50%; }
+.intro .iback { margin-left: -12px; }
+.iclose { position: absolute; z-index: 2; top: 18px; right: 18px; background: var(--border); }
+.ilead { margin: 0; padding-right: 48px; min-height: 2.3em; font-size: clamp(26px, 5.6vw, 38px); line-height: 1.14; font-weight: 600; letter-spacing: -0.03em; transition: opacity 200ms ease, filter 200ms ease; text-wrap: balance; }
+.ilead.swap { opacity: 0; filter: blur(5px); }
+.ilead span { color: var(--text-3); }
+.ilead em { font-style: normal; }
+.ilead em[data-p="D"] { color: var(--blue); text-shadow: 0 0 26px var(--halo-d); }
+.ilead em[data-p="R"] { color: var(--red); text-shadow: 0 0 26px var(--halo-r); }
+.irow { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+.seg { position: relative; display: inline-grid; grid-template-columns: 1fr 1fr; flex: none; padding: 3px; border-radius: 999px; background: var(--border); }
+.seg::before { content: ""; position: absolute; top: 3px; bottom: 3px; left: 3px; width: calc(50% - 3px); border-radius: 999px; background: var(--text); transition: transform 300ms var(--out); }
+.seg[data-when="next"]::before { transform: translateX(100%); }
+.seg button { position: relative; min-width: 84px; height: 36px; padding: 0 14px; border-radius: 999px; font-size: 14px; font-weight: 600; color: var(--text-2); transition: color 200ms ease; }
+.seg button[aria-pressed="true"] { color: var(--bg); }
+.ikey { display: flex; gap: 14px; font-size: 13px; color: var(--text-2); }
+.ikey i { display: inline-block; width: 9px; height: 9px; margin-right: 6px; border-radius: 50%; }
+i[data-g="D"] { background: var(--blue); }
+i[data-g="R"] { background: var(--red); }
+i[data-g="U"] { background: var(--gray); }
+i[data-g="M"] { background: var(--both); }
+.ipres, .icard { border: 1px solid var(--border); border-radius: 22px; background: var(--border); text-align: left; transition: transform 160ms var(--out), border-color 200ms ease, background-color 200ms ease; }
+.ipres:active, .icard:active, .iflip:active { transform: scale(0.98); }
+.ipres { display: flex; align-items: center; gap: 14px; width: 100%; padding: 12px 16px; }
+.ipres b { font-size: 18px; font-weight: 600; letter-spacing: -0.015em; }
+.ipres span:last-child { margin-left: auto; color: var(--text-2); font-size: 14px; }
+.icards { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+.icard { display: flex; flex-direction: column; gap: 8px; min-width: 0; padding: 14px 14px 12px; }
+.iname { font-size: 15px; font-weight: 600; }
+.icard canvas { display: block; width: 100%; aspect-ratio: 2 / 1.06; }
+.inums { display: flex; justify-content: space-between; font-size: clamp(22px, 4.6vw, 30px); font-weight: 600; letter-spacing: -0.03em; font-variant-numeric: tabular-nums; line-height: 1; }
+[data-num][data-p="D"] { color: var(--blue); } [data-num][data-p="R"] { color: var(--red); }
+b[data-num][data-p="D"]:not(.low) { text-shadow: 0 0 30px var(--blue); } b[data-num][data-p="R"]:not(.low) { text-shadow: 0 0 30px var(--red); }
+[data-num] { transition: opacity 300ms ease; } [data-num].low { opacity: 0.65; }
+.ifoot { position: relative; display: flex; align-items: center; justify-content: space-between; margin-top: auto; padding-top: 2px; }
+.dots { display: flex; }
+.dots button { display: grid; place-items: center; width: 26px; height: 44px; }
+.dots i { display: block; width: 7px; height: 7px; border-radius: 50%; background: var(--border-strong); transition: transform 240ms var(--out), background-color 200ms ease, box-shadow 200ms ease; }
+.dots [aria-current="true"] i { transform: scale(1.35); background: var(--text); }
+.go { display: inline-flex; align-items: center; gap: 8px; height: 46px; padding: 0 22px; border-radius: 999px; background: var(--text); color: var(--bg); font-size: 15px; font-weight: 650; transition: transform 160ms var(--out); }
+.go:active { transform: scale(0.97); }
+.go svg { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; }
+.idetail { display: grid; grid-template-columns: minmax(0, 320px) minmax(0, 1fr); grid-template-rows: auto 1fr; gap: 18px 28px; flex: 1; }
+.iside { display: grid; grid-template-columns: 1fr 1fr; gap: 12px 0; grid-template-areas: "arc arc" "d r"; align-self: start; min-width: 0; }
+.iarc { grid-area: arc; } .inum[data-side="D"] { grid-area: d; } .inum[data-side="R"] { grid-area: r; text-align: right; }
+.imap { grid-column: 2; grid-row: 1 / span 2; align-self: center; }
+.iflips { grid-column: 1; grid-row: 2; align-self: start; }
+.iarc { position: relative; }
+.iarc canvas { display: block; width: 100%; aspect-ratio: 2 / 1.06; }
+.itick { position: absolute; left: 50%; top: 0; transform: translate(-50%, -2px); width: 1.5px; height: 42%; background: linear-gradient(var(--text), transparent); }
+.imid { position: absolute; left: 50%; bottom: 0; transform: translateX(-50%); text-align: center; white-space: nowrap; font-size: 13px; font-weight: 600; color: var(--text-2); transition: opacity 200ms ease; font-variant-numeric: tabular-nums; }
+.imid.off { opacity: 0; }
+.inum { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
+.inum b { font-size: clamp(38px, 8vw, 60px); font-weight: 600; line-height: 0.95; letter-spacing: -0.045em; font-variant-numeric: tabular-nums; }
+.inum span { font-size: 13px; color: var(--text-2); }
+.mm { display: block; width: 100%; height: auto; overflow: visible; }
+.mmkey { justify-content: center; min-height: 18px; margin-top: 8px; font-size: 12px; }
+.mmkey:empty { visibility: hidden; }
+.mm path { transition: fill 420ms ease; transition-delay: var(--d, 0ms); }
+.mm [data-c="D"] { fill: var(--blue); } .mm [data-c="R"] { fill: var(--red); } .mm [data-c="U"] { fill: var(--gray); } .mm [data-c="M"] { fill: var(--both); }
+.mmtop path { stroke: var(--bg); stroke-width: 0.8; stroke-linejoin: round; }
+.mms { cursor: pointer; transition: opacity 160ms ease; }
+@media (hover: hover) and (pointer: fine) {
+  .ipres:hover, .icard:hover { border-color: var(--border-strong); background: var(--border-strong); }
+  .mm:hover .mms { opacity: 0.72; } .mm:hover .mms:hover { opacity: 1; }
+  .tab:hover { color: var(--text); }
+}
+.mmtip { position: absolute; z-index: 3; left: 0; top: 0; padding: 7px 11px; border-radius: 12px; background: var(--surface); border: 1px solid var(--border-strong); box-shadow: var(--shadow); font-size: 13px; font-weight: 600; white-space: nowrap; pointer-events: none; opacity: 0; transition: opacity 120ms ease; }
+.mmtip.on { opacity: 1; }
+.mmtip i { display: inline-block; width: 8px; height: 8px; margin-left: 5px; border-radius: 50%; }
+.iflips { display: flex; flex-wrap: wrap; gap: 8px; min-height: 0; transition: opacity 220ms ease; }
+.iflips.off { display: none; }
+.iflip { display: inline-flex; align-items: center; gap: 5px; padding: 4px 11px 4px 5px; border-radius: 999px; border: 1px solid var(--border); background: var(--border); font-size: 12px; font-weight: 600; transition: transform 160ms var(--out); animation: rise 360ms var(--out) backwards; animation-delay: calc(var(--i, 0) * 40ms); }
+.iflip svg { width: 12px; height: 12px; fill: none; stroke: var(--text-3); stroke-width: 2.4; stroke-linecap: round; stroke-linejoin: round; }
+@media (max-width: 759px) {
+  #app.intro-on { min-height: 600px; }
+  #app.intro-on .stage { position: absolute; top: 0; left: 0; right: 0; }
+  #app.intro-on .bar, #app.intro-on .phoneslot { display: none; }
+  .introslot { position: relative; padding: 0; background: none; display: block; }
+  .introslot.leaving { position: absolute; inset: 0 0 auto 0; }
+  .intro { width: 100%; max-height: none; border: 0; border-radius: 0; box-shadow: none; padding: 20px 18px 14px; }
+  .idetail { display: flex; flex-direction: column; gap: 14px; }
+  .iside { grid-template-columns: auto minmax(0, 1fr) auto; grid-template-areas: "d arc r"; gap: 0 10px; align-items: end; }
+  .imap { width: 100%; max-width: 560px; margin: 0 auto; }
+  .icard { padding: 12px 10px 10px; }
+}
+@media (max-width: 460px) {
+  .icards { grid-template-columns: minmax(0, 1fr); gap: 10px; }
+  .icard { display: grid; grid-template-columns: 1fr 44%; grid-template-rows: auto 1fr; gap: 6px 12px; padding: 12px 14px; }
+  .icard canvas { grid-column: 2; grid-row: 1 / span 2; }
+  .inums { align-self: end; gap: 12px; justify-content: flex-start; font-size: 30px; }
+  .seg button { min-width: 72px; }
+  .itop .seg { margin-right: 0; order: 3; flex: 1 0 100%; }
+  .iarc { margin-bottom: 20px; }
+  .imid { bottom: -20px; }
+  .ikey { gap: 10px; font-size: 12px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .introslot, .intro, .intro::before, .intro::after, .ipage > *, .iflip { animation: none !important; }
+  .introslot.leaving { opacity: 0; }
+  .mm path { transition: none; }
+}
+
+.block { padding: 14px 0; }
+h3.group { display: flex; align-items: center; gap: 6px; margin: 0 0 8px; font-size: 13px; font-weight: 600; color: var(--text-2); }
+h4.subgroup { margin: 14px 0 8px; font-size: 13px; font-weight: 600; color: var(--text); }
+h4.subgroup span { color: var(--text-3); font-weight: 500; margin-left: 3px; }
+.soft { margin: 0; font-size: 15px; line-height: 1.4; color: var(--text-2); }
+.num { font-weight: 600; font-variant-numeric: tabular-nums; letter-spacing: -0.02em; white-space: nowrap; }
+.num[data-p="D"], .pnum[data-p="D"] { color: var(--blue); } .num[data-p="R"], .pnum[data-p="R"] { color: var(--red); }
+.pnum { font-weight: 600; font-variant-numeric: tabular-nums; }
+.lean { position: relative; display: block; height: 14px; }
+.lean::before { content: ""; position: absolute; left: 0; right: 0; top: 50%; height: 2px; margin-top: -1px; border-radius: 2px; background: var(--border-strong); }
+.lean::after { content: ""; position: absolute; left: 50%; top: 2px; bottom: 2px; width: 1.5px; margin-left: -0.75px; background: var(--text-3); }
+.lean i { position: absolute; z-index: 1; top: 50%; width: 10px; height: 10px; margin: -5px 0 0 -5px; border-radius: 50%; background: var(--text-3); }
+.lean i[data-p="D"] { background: var(--blue); box-shadow: 0 0 8px var(--blue); } .lean i[data-p="R"] { background: var(--red); box-shadow: 0 0 8px var(--red); }
+.lean.est i { background: var(--surface) !important; box-shadow: none; border: 2px solid var(--text-3); }
+.lean.est i[data-p="D"] { border-color: var(--blue); } .lean.est i[data-p="R"] { border-color: var(--red); }
+.bigname .lean { height: 18px; margin-top: 4px; }
+.split { position: relative; display: block; grid-column: 1 / -1; height: 4px; margin-top: 6px; border-radius: 4px; background: var(--border-strong); overflow: hidden; }
+.split i { position: absolute; top: 0; bottom: 0; } .split i[data-p="D"] { right: 50%; background: var(--blue); } .split i[data-p="R"] { left: 50%; background: var(--red); }
+.pick { display: grid; width: 100%; grid-template-columns: minmax(0, 1fr); gap: 0 12px; align-items: center; text-align: left; padding: 7px 0; min-height: 48px; transition: transform 160ms var(--out); }
+.pick.has-face { grid-template-columns: 40px minmax(0, 1fr) 56px; }
+.pick .who { min-width: 0; display: flex; flex-direction: column; }
+.pick .sub { font-size: 13px; line-height: 1.3; color: var(--text-3); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.pick .say { grid-column: 2 / 4; font-size: 14px; color: var(--text-2); padding-top: 4px; }
+.card .pick { min-height: 40px; padding: 4px 0; }
+.cardhead { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; margin-bottom: 4px; }
+.cells { display: grid; grid-template-columns: repeat(auto-fill, minmax(76px, 1fr)); gap: 14px 8px; }
+.cell { display: flex; flex-direction: column; align-items: center; gap: 6px; min-width: 0; text-align: center; transition: transform 160ms var(--out); }
+.cell:active { transform: scale(0.97); }
+.cell b { font-size: 12px; line-height: 1.2; font-weight: 600; }
+.cell .lean { width: 100%; max-width: 56px; }
+.filters { display: flex; gap: 8px; padding: 2px 0 2px; }
+.filters select { flex: 1; min-width: 0; height: 38px; border: 1px solid var(--border); border-radius: 999px; background: var(--border); padding: 0 12px; font-size: 14px; }
+details { border-radius: 14px; }
+details + details { margin-top: 2px; }
+summary { display: flex; align-items: center; gap: 8px; cursor: pointer; min-height: 44px; font-size: 14px; font-weight: 600; list-style: none; }
+summary::-webkit-details-marker { display: none; }
+summary::after { content: ""; margin-left: auto; width: 7px; height: 7px; border-right: 1.8px solid var(--text-3); border-bottom: 1.8px solid var(--text-3); transform: rotate(-45deg); transition: transform 200ms var(--out); }
+details[open] > summary::after { transform: rotate(45deg); }
+.tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(92px, 1fr)); gap: 8px; }
+.tile { display: flex; flex-direction: column; gap: 8px; min-width: 0; padding: 12px; border-radius: 18px; background: var(--border); border: 1px solid var(--border); }
+.tlabel { font-size: 12px; font-weight: 600; color: var(--text-2); }
+.tmain { display: flex; align-items: center; gap: 8px; min-height: 30px; }
+.tmain .num { font-size: 22px; }
+.tmain .pair { display: flex; gap: 8px; font-size: 22px; letter-spacing: -0.02em; }
+.tnone { font-size: 14px; color: var(--text-3); font-weight: 600; }
+.tcity { font-size: 15px; font-weight: 600; }
+.tfoot { font-size: 12px; color: var(--text-3); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.tfoot .num { font-size: 12px; }
+.tname { font-size: 12px; color: var(--text-2); font-weight: 600; }
+.statrow { display: flex; gap: 28px; }
+.stat { display: flex; flex-direction: column; gap: 2px; }
+.stat b { font-size: 30px; line-height: 1; font-weight: 600; letter-spacing: -0.03em; font-variant-numeric: tabular-nums; }
+.stat span { font-size: 12px; color: var(--text-2); }
+.chips { padding-top: 10px; }
+.chip { display: inline-flex; gap: 5px; align-items: baseline; padding: 5px 11px; border-radius: 999px; background: var(--border); font-size: 12px; color: var(--text-2); }
+.btn { display: inline-flex; align-items: center; min-height: 40px; padding: 0 16px; border-radius: 999px; background: var(--border-strong); text-decoration: none; font-size: 14px; font-weight: 600; transition: transform 160ms var(--out); }
+.pairbig { display: flex; justify-content: space-between; align-items: flex-end; }
+.pairbig > div { display: flex; flex-direction: column; gap: 3px; }
+.pairbig > div:last-child { text-align: right; }
+.pairbig b { font-size: 44px; line-height: 1; font-weight: 600; letter-spacing: -0.04em; font-variant-numeric: tabular-nums; opacity: 0.65; }
+.pairbig b.on { opacity: 1; }
+.pairbig b[data-p="D"] { color: var(--blue); } .pairbig b[data-p="R"] { color: var(--red); }
+.pairbig b.on[data-p="D"] { text-shadow: 0 0 28px var(--blue); } .pairbig b.on[data-p="R"] { text-shadow: 0 0 28px var(--red); }
+.pairbig span { font-size: 12px; color: var(--text-2); }
+.seats { display: flex; flex-wrap: wrap; gap: 4px; padding: 10px 0 4px; }
+.seats .dot { width: 11px; height: 11px; box-shadow: none; }
+.seats .dot[data-p="U"] { background: var(--gray); }
+.rings { display: flex; gap: 22px; }
+.ring { position: relative; display: grid; justify-items: center; width: 96px; gap: 1px; text-align: center; }
+.ring svg { width: 84px; height: 84px; transform: rotate(-90deg); margin-bottom: 6px; }
+.ring circle { fill: none; stroke-width: 6; }
+.ring .bg { stroke: var(--border-strong); }
+.ring .fg { stroke: var(--text); stroke-linecap: round; }
+.ring > b { position: absolute; top: 28px; left: 0; right: 0; font-size: 24px; line-height: 1; font-weight: 600; letter-spacing: -0.03em; font-variant-numeric: tabular-nums; }
+.ring > span { font-size: 13px; font-weight: 600; }
+.ring small { font-size: 12px; color: var(--text-3); }
+.pict { display: grid; grid-template-columns: repeat(10, 14px); gap: 5px; }
+.pict i { width: 14px; height: 14px; border-radius: 50%; }
+.pict i[data-t="a"] { background: var(--text); } .pict i[data-t="b"] { background: var(--text-3); opacity: 0.6; }
+.legend i[data-c="a"] { background: var(--text); } .legend i[data-c="b"] { background: var(--text-3); opacity: 0.6; }
+.hbar { display: grid; grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr) 36px; gap: 10px; align-items: center; min-height: 32px; font-size: 13px; padding: 2px 0; }
+.hname { display: flex; align-items: center; gap: 8px; min-width: 0; }
+.tl { position: relative; margin-left: 4px; padding-left: 16px; border-left: 1.5px solid var(--border-strong); }
+.tl > div { position: relative; padding: 5px 0; font-size: 14px; }
+.tl > div::before { content: ""; position: absolute; left: -21px; top: 12px; width: 8px; height: 8px; border-radius: 50%; background: var(--text-3); }
+.tl > div.next::before { background: var(--text); box-shadow: 0 0 10px var(--text-2); }
+.tl b { display: block; font-size: 12px; font-weight: 600; color: var(--text-3); }
+.tl .next b { color: var(--text); }
+.twocol { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
+.twocol .dot { display: inline-block; width: 8px; height: 8px; box-shadow: none; }
+.pair2 { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; margin: 2px 0 12px; }
+.pair2 > div { padding: 10px 12px; border-radius: 14px; background: var(--border); font-size: 13px; line-height: 1.35; }
+.pair2 b { display: block; margin-bottom: 3px; font-weight: 600; }
+.pair2 [data-p="D"] b { color: var(--blue); } .pair2 [data-p="R"] b { color: var(--red); }
+.pullq { padding-left: 12px; border-left: 2px solid var(--border-strong); font-size: 15px; line-height: 1.4; color: var(--text-2); }
+.stance { display: grid; grid-template-columns: 22px minmax(0, 1fr); gap: 8px; padding: 7px 0; }
+.stance b { display: block; font-size: 14px; font-weight: 600; color: var(--text); }
+.stance div { font-size: 14px; line-height: 1.35; color: var(--text-2); }
+.power > span { min-width: 0; }
+.power b { font-size: 16px; }
+.win.enter .winbody > * { animation: rise 340ms var(--out) backwards; }
+.win.enter .winbody > *:nth-child(2) { animation-delay: 40ms; } .win.enter .winbody > *:nth-child(3) { animation-delay: 80ms; } .win.enter .winbody > *:nth-child(n+4) { animation-delay: 120ms; }
+.win.enter .track i { animation: grow 520ms var(--out) 120ms backwards; transform-origin: left; }
+.win.enter .ring .fg { animation: draw 800ms var(--out) 120ms backwards; }
+@keyframes grow { from { transform: scaleX(0); } }
+@keyframes draw { from { stroke-dasharray: 0 var(--c); } }
+@media (prefers-reduced-motion: reduce) { .win.enter * { animation: none !important; } }
+@media (max-width: 759px) { .pict { grid-template-columns: repeat(10, 16px); } .pict i { width: 16px; height: 16px; } }
+
+canvas.gl.zoomed { touch-action: none; }
+.mapctl { position: absolute; z-index: 3; top: 62px; left: 10px; display: flex; align-items: center; gap: 6px; }
+.ctlb { width: 38px; height: 38px; border-radius: 50%; background: var(--glass); border: 1px solid var(--border); -webkit-backdrop-filter: blur(18px); backdrop-filter: blur(18px); }
+.ctlb svg { width: 16px; height: 16px; }
+.mapseg { position: relative; display: grid; grid-template-columns: repeat(var(--n, 2), minmax(0, 1fr)); padding: 3px; border-radius: 999px; background: var(--glass); border: 1px solid var(--border); -webkit-backdrop-filter: blur(18px); backdrop-filter: blur(18px); }
+.segthumb { position: absolute; top: 3px; bottom: 3px; left: 3px; width: calc((100% - 6px) / var(--n, 2)); border-radius: 999px; background: var(--text); transform: translateX(calc(var(--k, 0) * 100%)); transition: transform 280ms var(--out); }
+.mapseg button { position: relative; min-width: 66px; height: 30px; padding: 0 10px; border-radius: 999px; font-size: 13px; font-weight: 600; white-space: nowrap; color: var(--text-2); transition: color 200ms ease; }
+.mapseg button[aria-pressed="true"] { color: var(--bg); }
+.finder { position: absolute; z-index: 7; top: 106px; left: 10px; display: flex; flex-direction: column; width: 260px; max-width: calc(100% - 20px); max-height: calc(100% - 118px); padding: 8px; border-radius: 20px; background: var(--glass); border: 1px solid var(--border-strong); box-shadow: var(--shadow); -webkit-backdrop-filter: blur(26px) saturate(1.3); backdrop-filter: blur(26px) saturate(1.3); }
+.finder input { flex: none; height: 40px; padding: 0 12px; border: 0; border-radius: 12px; background: var(--border); color: var(--text); font: 16px var(--sans); outline: 0; }
+.finderlist { flex: 1; min-height: 0; overflow-y: auto; padding-top: 4px; overscroll-behavior: contain; }
+.finderlist button { display: flex; justify-content: space-between; align-items: center; width: 100%; min-height: 38px; padding: 0 10px; border-radius: 10px; font-size: 14px; font-weight: 550; text-align: left; }
+.mapfoot { position: absolute; z-index: 3; left: 12px; right: 12px; bottom: 12px; display: flex; align-items: flex-end; gap: 12px; pointer-events: none; }
+.mapfoot > * { pointer-events: auto; }
+.mapfoot .power { position: static; flex: none; }
+.mapkey { display: flex; flex-wrap: wrap; gap: 2px 12px; font-size: 12px; line-height: 1.5; color: var(--text-2); pointer-events: none; }
+.mapkey i { display: inline-block; width: 9px; height: 9px; margin-right: 5px; border-radius: 50%; }
+.kw { color: var(--text-3); }
+.tag { font-size: 11px; }
+.pick.has-faces { grid-template-columns: 56px minmax(0, 1fr); }
+.stack { display: flex; } .stack .face + .face { margin-left: -10px; }
+.win .iflips { display: flex; }
+@media (hover: none) { .zoomb { display: none; } }
+@media (max-width: 759px) {
+  .stage { aspect-ratio: 975 / 720; }
+  html.full .stage { aspect-ratio: 975 / 720; }
+  .mapctl { top: 8px; left: 8px; }
+  .finder { top: 52px; left: 8px; }
+  .mapfoot { left: 10px; right: 10px; bottom: 6px; }
+  .mapkey { font-size: 11px; gap: 0 10px; }
+}
+
+.card.tap { display: flex; align-items: baseline; gap: 10px; width: auto; padding: 8px 14px; border-radius: 999px; font-size: 13px; white-space: nowrap; }
+.card.tap span { color: var(--text-2); } .card.tap .num[data-p="D"] { color: var(--blue); } .card.tap .num[data-p="R"] { color: var(--red); }
+@media (max-width: 460px) { .tile { padding: 10px; } .tmain { gap: 6px; } .tmain .num, .tmain .pair { font-size: 18px; } }
+
+.prohead { display: flex; align-items: center; gap: 16px; }
+.protitle { font-size: 18px; font-weight: 600; letter-spacing: -0.015em; line-height: 1.2; }
+.prosub { margin-top: 3px; font-size: 13px; line-height: 1.35; color: var(--text-2); }
+.statrow.wrap { flex-wrap: wrap; gap: 14px 28px; }
+.cardline { margin-bottom: 4px; font-size: 13px; }
+.cardline .num { letter-spacing: 0; }
+.strip { display: block; width: 100%; height: auto; margin: 2px 0 6px; overflow: visible; }
+.strip path { fill: none; stroke: var(--border-strong); stroke-width: 1; }
+.strip [data-peer="D"] { fill: var(--blue); opacity: 0.38; } .strip [data-peer="R"] { fill: var(--red); opacity: 0.38; } .strip [data-peer="I"] { fill: var(--blue); opacity: 0.38; }
+.strip .self { stroke: var(--bg); stroke-width: 1.5; }
+.strip .self[data-p="D"] { fill: var(--blue); filter: drop-shadow(0 0 5px var(--blue)); } .strip .self[data-p="R"] { fill: var(--red); filter: drop-shadow(0 0 5px var(--red)); }
+.strip .self.est { fill: var(--bg) !important; filter: none; stroke-width: 2.5; }
+.strip .self.est[data-p="D"] { stroke: var(--blue); } .strip .self.est[data-p="R"] { stroke: var(--red); }
+.tmain .tname { font-size: 15px; font-weight: 600; color: var(--text); }
+.tfoot { white-space: normal; line-height: 1.3; }
+.card.tap { flex-wrap: wrap; white-space: normal; border-radius: 16px; max-width: calc(100% - 16px); gap: 2px 10px; }
+.fact { grid-template-columns: 22px minmax(0, 1fr); gap: 8px; color: var(--text-2); }
+.chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.chip b { color: var(--text); font-weight: 600; font-size: 12px; }
 </style>
 </head>
 <body>
 <main id="app">
   <div class="bar" role="tablist"></div>
-  <div class="stage"><canvas class="gl" role="img" aria-label="United States map"></canvas><div class="tags"></div><button class="icon reset" data-reset aria-label="Reset camera" title="Reset camera" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5"/></svg></button><div class="powerslot"></div><div class="card"></div><div class="winslot"></div></div>
+  <div class="stage"><canvas class="gl" role="img" aria-label="United States map"></canvas><div class="tags"></div><div class="mapctl"><div class="mapseg" hidden></div><button class="icon ctlb" data-finder aria-label="Find a state"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.8-3.8"/></svg></button><button class="icon ctlb zoomb" data-zoom="in" aria-label="Zoom in"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg></button><button class="icon ctlb zoomb" data-zoom="out" aria-label="Zoom out"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14"/></svg></button><button class="icon ctlb reset" data-reset aria-label="Reset camera" title="Reset camera" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5"/></svg></button></div><div class="finder" hidden></div><div class="mapfoot"><div class="powerslot"></div><div class="mapkey"></div></div><div class="card"></div><div class="winslot"></div></div>
   <div class="phoneslot"></div>
+  <div class="introslot" hidden></div>
   <div class="sr" id="keys"></div>
 </main>
 <script src="data.js"></script>
@@ -215,13 +464,6 @@ const ICON = {
 };
 const STATUS = { filed: 'Filed', considering: 'Considering', ruled_out: 'Said no', unstated: "Hasn't said" };
 const ISSUES = [['economy_taxes', 'Economy'], ['health_care', 'Health care'], ['immigration', 'Immigration'], ['foreign_policy', 'Foreign policy'], ['signature', 'Signature issue']];
-const BLURB = {
-  now: 'Where power stands today, with states colored by their 2026 House vote.',
-  president: 'Who holds the presidency and who may run in 2028.',
-  primaries: 'Which states vote first in the 2028 primaries, and when.',
-  senate: 'The Senate seats on the ballot in 2028, and who holds each one.',
-  governor: "The governor's seats on the ballot in 2028, and who holds each one.",
-};
 const TABS = [['now', 'Now'], ['president', 'President'], ['primaries', 'Primaries'], ['senate', 'Senate'], ['governor', 'Governor']];
 function phone0() { return matchMedia('(max-width: 759px)').matches; }
 const partyKey = (p) => (p.party?.[0] === 'D' ? 'D' : p.party?.[0] === 'R' ? 'R' : 'O');
@@ -230,7 +472,15 @@ const byState = (list) => Object.fromEntries(list.map((x) => [x.state, x]));
 const senate = byState(DATA.senate), gov = byState(DATA.governors);
 const shape = Object.fromEntries(SHAPES.map((s) => [s.abbr, s]));
 const personNamed = (n) => DATA.people.find((p) => p.name === n);
-const ui = { tab: 'now', stack: phone0() ? [] : [{ kind: 'list' }], party: 'all', issue: '', hover: '' };
+const POWER = DATA.now?.power ?? {};
+const ui = { tab: 'now', when: 'now', stack: [], party: 'all', issue: '', hover: '', finder: false };
+const WHENS = { now: [['now', 'Today'], ['next', 'January'], ['vote', '2026 vote']], senate: [['now', 'Today'], ['next', 'January'], ['2028', '2028']], governor: [['now', 'Today'], ['next', 'January'], ['2028', '2028']] };
+const bodyKey = () => (ui.tab === 'governor' ? 'governors' : ui.tab);
+const controlOf = (w, a) => { const seats = [...(SEATS.senate[w][a] ?? []), ...(SEATS.governors[w][a] ?? [])], d = seats.filter((x) => x === 'D').length, r = seats.filter((x) => x === 'R').length; return d >= 2 ? { p: 'D', n: d } : r >= 2 ? { p: 'R', n: r } : null; };
+const controlTone = (w, a) => { const c = controlOf(w, a); return c ? `--${c.p.toLowerCase()}${c.n === 3 ? 3 : 1}` : '--gray'; };
+const oddsOf = (a) => { const rows = DATA.markets?.events?.[DATA.markets?.states?.[a]]?.rows; if (!rows?.length) return null; const d = rows.find((x) => /democrat/i.test(x.name))?.p, r = rows.find((x) => /republican/i.test(x.name))?.p; return d == null && r == null ? null : { d: d ?? 1 - r, r: r ?? 1 - d }; };
+const FILL = { D: '--d3', R: '--r3', M: '--both', U: '--gray' };
+const intro = { on: true, page: 0, when: 'now', arcs: [] };
 const phone = () => matchMedia('(max-width: 759px)').matches;
 const css = (name) => getComputedStyle(document.documentElement).getPropertyValue(name).trim();
 
@@ -238,25 +488,46 @@ const openState = () => [...ui.stack].reverse().find((p) => p.kind === 'state')?
 const marginTone = (w, m) => `--${w.toLowerCase()}${m < 5 ? 1 : m < 15 ? 2 : 3}`;
 const tone = (a) => {
   if (openState()) return '--land';
-  if (ui.tab === 'now' || ui.tab === 'president') { const m = DATA.colors[a]; return m ? `--${m.winner.toLowerCase()}${m.margin_pct < 5 ? 1 : m.margin_pct < 15 ? 2 : 3}` : '--land'; }
-  if (ui.tab === 'senate' || ui.tab === 'governor') { const s = (ui.tab === 'senate' ? senate : gov)[a]; return s ? (s.party === 'D' ? '--d3' : s.party === 'R' ? '--r3' : '--accent-fill') : '--land'; }
+  if (ui.tab === 'now') { if (ui.when === 'vote') { const m = DATA.colors[a]; return m ? marginTone(m.winner, m.margin_pct) : '--land'; } return shape[a].polys.length ? controlTone(ui.when, a) : '--land'; }
+  if (ui.tab === 'president') { const o = oddsOf(a); if (!o) return '--land'; const m = Math.abs(o.d - o.r); return `--${o.d > o.r ? 'd' : 'r'}${m < 0.2 ? 1 : m < 0.5 ? 2 : 3}`; }
+  if (ui.tab === 'senate' || ui.tab === 'governor') {
+    if (ui.when !== '2028') return shape[a].polys.length ? FILL[mapFill(bodyKey(), ui.when, a)] : '--land';
+    const s = (ui.tab === 'senate' ? senate : gov)[a]; return s ? (s.party === 'D' ? '--d3' : s.party === 'R' ? '--r3' : '--accent-fill') : '--land';
+  }
   const d = DATA.calendar.dem.some((c) => c.state === a), r = DATA.calendar.gop.some((c) => c.state === a);
   return d && r ? '--accent-fill' : d ? '--d3' : r ? '--r3' : '--land';
 };
+const raisedNow = () => {
+  if (ui.when !== 'next' || openState()) return {};
+  const out = {};
+  for (const s of SHAPES) {
+    if (!s.polys.length) continue; const a = s.abbr;
+    const was = ui.tab === 'now' ? controlOf('now', a)?.p : mapFill(bodyKey(), 'now', a), is = ui.tab === 'now' ? controlOf('next', a)?.p : mapFill(bodyKey(), 'next', a);
+    if (is && is !== was && is !== 'U') out[a] = 14;
+  }
+  return out;
+};
 const rise = (a) => {
+  if (intro.on) return 1.5;
   if (openState()) return 2;
   if (ui.tab === 'now' || ui.tab === 'president') return 3 + Math.sqrt(DATA.electoral[a] ?? 3) * 5;
-  if (ui.tab === 'senate') return senate[a] ? 26 : 3;
-  if (ui.tab === 'governor') return gov[a] ? 26 : 3;
+  if (ui.tab === 'senate' || ui.tab === 'governor') return ui.when === '2028' ? ((ui.tab === 'senate' ? senate : gov)[a] ? 26 : 3) : 8;
   const d = DATA.calendar.dem.findIndex((c) => c.state === a), r = DATA.calendar.gop.findIndex((c) => c.state === a);
   const order = Math.min(d < 0 ? 9 : d, r < 0 ? 9 : r);
   return order === 9 ? 3 : 40 - order * 5;
 };
+const tagMode = () => (app.clientWidth < 500 ? 0 : app.clientWidth < 760 ? 1 : 2);
+const stateLabel = (a) => { const s = shape[a]; if (tagMode() < 2 || OFFSHORE.includes(a)) return a; const scale = (app.clientWidth * 0.72) / 975; return s.w * scale > s.name.length * 6.6 ? s.name : a; };
 const labelsFor = (a) => {
-  if (ui.tab === 'now') return [];
-  if (ui.tab === 'president') return [];
-  if (ui.tab === 'senate') return senate[a] ? [{ text: last(senate[a].holder), id: `${a}|${senate[a].holder}`, name: senate[a].holder, party: senate[a].party }] : [];
-  if (ui.tab === 'governor') return gov[a] ? [{ text: last(gov[a].incumbent), id: `${a}|${gov[a].incumbent}`, name: gov[a].incumbent, party: gov[a].party }] : [];
+  if (ui.tab === 'now') return [{ text: stateLabel(a) }];
+  if (ui.tab === 'president') return [{ text: tagMode() < 2 ? String(DATA.electoral[a] ?? '') : `${a} ${DATA.electoral[a] ?? ''}` }];
+  if (ui.tab === 'senate' || ui.tab === 'governor') {
+    const race = (ui.tab === 'senate' ? senate : gov)[a];
+    if (ui.when !== '2028') return shape[a].polys.length ? [{ text: a }] : [];
+    if (!race) return [];
+    const name = race.holder ?? race.incumbent;
+    return tagMode() === 2 ? [{ text: last(name), id: `${a}|${name}`, name, party: race.party }] : tagMode() === 1 ? [{ text: '', id: `${a}|${name}`, name, party: race.party }] : [{ text: a }];
+  }
   const out = [], d = DATA.calendar.dem.find((c) => c.state === a), r = DATA.calendar.gop.findIndex((c) => c.state === a);
   if (d) out.push({ text: shortDay(d.date) });
   if (r >= 0) out.push({ text: DATA.calendar.gop[r].date ? shortDay(DATA.calendar.gop[r].date) : `GOP #${r + 1}` });
@@ -265,21 +536,21 @@ const labelsFor = (a) => {
 const OFFSHORE = ['NH', 'VT', 'MA', 'RI', 'CT', 'NJ', 'DE', 'MD', 'DC'];
 let tagList = [];
 const buildTags = () => {
-  const box = q('.tags'); tagList = []; box.innerHTML = '';
-  if (app.clientWidth < 760 || openState()) { scene?.setLeads([]); return; }
-  const leads = []; let slot = 0;
+  const box = q('.tags'), mode = tagMode(); tagList = []; box.innerHTML = '';
+  if (openState()) { scene?.setLeads([]); return; }
+  const leads = []; let slot = 0, stack = 0;
   const add = (l, a, x, y, off, i, n) => {
     const el = document.createElement('div');
-    el.className = `tag${off ? ' off' : ''}`; el.innerHTML = `${l.id ? face(l.id, l.name, l.party, 22) : ''}${esc(l.text)}`;
-    if (l.person) el.dataset.person = l.person;
+    el.className = `tag${off ? ' off' : ''}`; el.innerHTML = `${l.id ? face(l.id, l.name, l.party, mode === 2 ? 22 : 18) : ''}${esc(l.text)}`;
+    if (off) el.dataset.tagState = a;
     box.append(el); tagList.push({ el, a, x, y, off, dy: (i - (n - 1) / 2) * 14 });
   };
   for (const s of SHAPES) {
     const list = labelsFor(s.abbr); if (!list.length) continue;
     if (OFFSHORE.includes(s.abbr)) {
-      const y = 170 + slot * 24; slot += 1;
+      const y = mode ? 150 + slot * 27 : 128 + slot * 38; slot += 1;
       leads.push([s.cx, s.cy, rise(s.abbr), 918, y]);
-      add({ text: list.map((l) => l.text).join(', '), person: list[0].person, id: list[0].id, name: list[0].name, party: list[0].party }, s.abbr, 922, y, true, 0, 1);
+      add({ text: list.map((l) => l.text).join(', ') || s.abbr, person: list[0].person, id: list[0].id, name: list[0].name, party: list[0].party }, s.abbr, 922, y, true, 0, 1);
     } else list.forEach((l, i) => add(l, s.abbr, s.cx, s.cy, false, i, list.length));
   }
   scene?.setLeads(leads);
@@ -292,53 +563,55 @@ const moveTags = () => {
     t.el.style.transform = `translate3d(${Math.min(p.x - (t.off ? 0 : w / 2), q('.tags').clientWidth - w - 6).toFixed(1)}px, ${(p.y - 7 + t.dy).toFixed(1)}px, 0)`;
   }
 };
-const leanBar = (party, m) => { const p = party?.[0] === 'D' ? 'D' : party?.[0] === 'R' ? 'R' : 'O'; return typeof m === 'number' ? `<span class="lean" role="img" aria-label="${p}+${m.toFixed(1)}"><i data-p="${p}" style="${p === 'R' ? 'left:50%' : 'right:50%'};width:${Math.min(50, (m / 40) * 50).toFixed(1)}%"></i></span>` : ''; };
-const resRow = (label, who, party, m, source, id) => { const p = party?.[0]; return `<div class="res"><h3>${esc(label)}</h3><span class="num" data-p="${esc(p ?? '')}">${typeof m === 'number' ? `${esc(p)}+${m.toFixed(1)}` : ''}</span><span class="who" style="grid-column:1/-1">${id ? `<button class="linkname" data-open-official="${esc(id)}">${esc(who)}</button>` : esc(who)}${src(source)}</span>${leanBar(party, m)}</div>`; };
+const leanBar = (party, m) => { const p = party?.[0] === 'D' ? 'D' : party?.[0] === 'R' ? 'R' : 'O'; return typeof m === 'number' ? `<span class="split" role="img" aria-label="${p}+${m.toFixed(1)}"><i data-p="${p}" style="${p === 'R' ? 'left:50%' : 'right:50%'};width:${Math.min(50, (m / 40) * 50).toFixed(1)}%"></i></span>` : ''; };
 const initials = (n) => n.replace(/ (Jr|Sr)\.?$/, '').split(' ').filter(Boolean).map((w) => w[0]).filter((_, i, l) => i === 0 || i === l.length - 1).join('').toUpperCase();
 const face = (id, name, party, size) => { const f = DATA.faces?.map?.[id], cols = DATA.faces?.cols ?? 32, p = party?.[0] === 'D' ? 'D' : party?.[0] === 'R' ? 'R' : 'O'; return f ? `<span class="face" data-p="${p}" style="width:${size}px;height:${size}px;background-size:${cols * size}px auto;background-position:-${f[0] * size}px -${f[1] * size}px" role="img" aria-label="${esc(name)}"></span>` : `<span class="face none" data-p="${p}" style="width:${size}px;height:${size}px;font-size:${Math.round(size * 0.36)}px" aria-hidden="true">${esc(initials(name))}</span>`; };
 const leanOf = (x) => (typeof x?.score?.score === 'number' ? { v: x.score.score, est: false } : typeof x?.est?.lean === 'number' ? { v: x.est.lean, est: true } : null);
-const leanV = (l, thin) => { if (!l) return ''; const p = l.v < 0 ? 'D' : 'R'; const words = `${l.v < 0 ? 'Left' : 'Right'} ${Math.abs(l.v).toFixed(2)}${l.est ? ', estimated' : ''}`; return `<span class="lean${thin ? ' thin' : ''}${l.est ? ' est' : ''}" role="img" aria-label="${esc(words)}"><i data-p="${p}" style="${p === 'R' ? 'left:50%' : 'right:50%'};width:${Math.min(50, Math.abs(l.v) * 50).toFixed(1)}%"></i></span>`; };
+const leanV = (l, thin) => { if (!l) return ''; const p = l.v < 0 ? 'D' : 'R'; const words = `${l.v < 0 ? 'Left' : 'Right'} ${Math.abs(l.v).toFixed(2)}${l.est ? ', estimated' : ''}`; return `<span class="lean${thin ? ' thin' : ''}${l.est ? ' est' : ''}" role="img" aria-label="${esc(words)}"><i data-p="${p}" style="left:${(50 + Math.max(-1, Math.min(1, l.v)) * 50).toFixed(1)}%"></i></span>`; };
 const leanBlock = (x) => {
   const s = x?.score, e = x?.est; if (!s && !e) return '';
   const line = (v, label, source, est) => `<div class="leanrow"><div class="ends"><span>Left</span><b>${est ? 'Estimate' : Math.abs(v).toFixed(2)}</b><span>Right</span></div>${leanV({ v, est }, false)}<div class="st" style="white-space:normal">${label}${source}</div></div>`;
   return `<div class="block"><h3>Lean</h3>${s ? line(s.score, `Voting record, ${esc(s.chamber)}, ${esc(s.congress)}th Congress: ${s.rank} of ${s.total} from the ${esc(s.side)}`, `${src(s.source)}${safe(DATA.scoreCaveat) ? ` <a class="src" href="${esc(DATA.scoreCaveat)}" target="_blank" rel="noopener">limits</a>` : ''}`, false) : ''}${e ? line(e.lean, `Estimated from their positions. ${esc(e.basis ?? '')}`, '', true) : ''}</div>`;
 };
-const stateStats = (a) => {
-  const m = DATA.colors[a];
-  return `<div class="stats"><span><b>${DATA.electoral[a]}</b> electoral</span>${DATA.house[a] ? `<span><b>${DATA.house[a]}</b> House</span>` : ''}</div>${m ? resRow(DATA.colorLabel, '', m.winner, m.margin_pct) : ''}`;
-};
-const raceRows = (a) => {
-  const s = senate[a], g = gov[a], d = DATA.calendar.dem.find((c) => c.state === a), r = DATA.calendar.gop.findIndex((c) => c.state === a);
-  return `${s ? `<div class="kv"><span>Senate</span><span>${esc(s.holder)} (${esc(s.party)})</span></div>` : ''}${g ? `<div class="kv"><span>Governor</span><span>${esc(g.incumbent)} (${esc(g.party)})</span></div>` : ''}${d ? `<div class="kv"><span>Democrats</span><span>${esc(day(d.date))}</span></div>` : ''}${r >= 0 ? `<div class="kv"><span>Republicans</span><span>${DATA.calendar.gop[r].date ? esc(day(DATA.calendar.gop[r].date)) : `#${r + 1} in order`}</span></div>` : ''}`;
-};
+const shortTitle = (t) => { const x = String(t ?? ''), m = /^Representative, district ([\w-]+)/.exec(x); if (m) return m[1] === 'at-large' ? 'At-large' : `District ${m[1]}`; return /candidate/i.test(x) ? x : x.split(', ')[0]; };
 const personRow = (p) => {
   const pick = ui.issue && p.issues?.[ui.issue];
-  return `<button class="pick has-face" data-open-person="${esc(p.name)}">${face(p.name, p.name, p.party, 36)}<b>${esc(p.name)}</b><span class="st" data-s="${esc(p.status)}">${esc(STATUS[p.status] ?? '')}</span><span class="sub">${esc(p.role)}</span>${leanV(leanOf(p), true)}${ui.issue ? `<span class="say">${pick?.text ? esc(pick.text) : '—'}</span>` : ''}</button>`;
+  return `<button class="pick has-face" data-open-person="${esc(p.name)}">${face(p.name, p.name, p.party, 40)}<span class="who"><b>${esc(p.name)}</b><span class="sub">${esc([STATUS[p.status], shortTitle(p.role)].filter(Boolean).join(' · '))}</span></span>${leanV(leanOf(p), true)}${ui.issue ? `<span class="say">${pick?.text ? esc(first(pick.text)) : '—'}</span>` : ''}</button>`;
 };
+const personCell = (p) => `<button class="cell" data-open-person="${esc(p.name)}">${face(p.name, p.name, p.party, 56)}<b>${esc(p.name)}</b>${leanV(leanOf(p), true)}</button>`;
+const pNum = (d, r) => `<span class="pnum" data-p="D">${esc(d)}</span> <span class="pnum" data-p="R">${esc(r)}</span>`;
+const pairBig = (d, r) => `<div class="pairbig"><div><b data-p="D"${d >= r ? ' class="on"' : ''}>${esc(d)}</b><span>Democrats</span></div><div><b data-p="R"${r >= d ? ' class="on"' : ''}>${esc(r)}</b><span>Republicans</span></div></div>`;
+const seatDots = (d, r, rest = 0) => `<div class="seats">${[...Array(d).fill('D'), ...Array(rest).fill('U'), ...Array(r).fill('R')].map((c) => `<span class="dot" data-p="${c}"></span>`).join('')}</div>`;
+const ring = (v, label, foot, source) => { const C = 2 * Math.PI * 30; return `<div class="ring"><svg viewBox="0 0 72 72" role="img" aria-label="${esc(label)} ${esc(v)}"><circle class="bg" cx="36" cy="36" r="30"/><circle class="fg" cx="36" cy="36" r="30" style="--c:${C.toFixed(1)};stroke-dasharray:${((v / 100) * C).toFixed(1)} ${C.toFixed(1)}"/></svg><b>${esc(v)}</b><span>${esc(label)}${src(source)}</span><small>${esc(foot)}</small></div>`; };
+const pict = (parts) => `<div class="pict" role="img" aria-label="${esc(parts.map((p) => `${p.label} ${p.v}%`).join(', '))}">${parts.flatMap((p) => Array(Math.round(p.v / 5)).fill(`<i data-t="${p.t}"></i>`)).join('')}</div>`;
+const tile = (label, main, foot, source) => `<div class="tile"><span class="tlabel">${esc(label)}${src(source)}</span><div class="tmain">${main}</div>${foot ? `<div class="tfoot">${foot}</div>` : ''}</div>`;
+const stat = (n, label, source) => `<span class="stat"><b>${esc(n)}</b><span>${esc(label)}${src(source)}</span></span>`;
+const WINNER = { D: 'Democrats', R: 'Republicans', I: 'Non-party candidates' };
+const wonBy = (p, m) => `<span class="num" data-p="${esc(p)}">${esc(WINNER[p] ?? '')} won by ${m.toFixed(1)}% of the vote</span>`;
 const hoverCard = (a) => {
-  const here = DATA.people.filter((p) => p.state === a);
-  return `<div class="title">${esc(shape[a].name)}</div>${stateStats(a)}${(DATA.offices?.[a]?.in_office ?? []).filter((x) => x.g === 'top').map((x) => officialRow(x.id)).join('') || raceRows(a)}`;
+  const m = ui.tab === 'now' && ui.when === 'vote' ? DATA.colors[a] : null;
+  return `<div class="cardhead"><div class="title">${esc(shape[a].name)}</div></div>${m ? `<div class="cardline">${wonBy(m.winner, m.margin_pct)}</div>` : ''}${(DATA.offices?.[a]?.in_office ?? []).filter((x) => x.g === 'top').map((x) => officialRow(x.id)).join('')}`;
 };
 const personCard = (p) => `<div class="title">${esc(p.name)}</div><div class="stats"><span class="st" data-s="${esc(p.status)}">${esc(STATUS[p.status] ?? '')}</span><span>${esc(p.role)}</span></div>${p.why?.text ? `<div style="padding-top:8px">${esc(p.why.text)}</div>` : p.status_quote ? `<div style="padding-top:8px">“${esc(p.status_quote)}”</div>` : ''}`;
 const official = (id) => DATA.officials?.[id];
-const officialRow = (id, lastTitle) => { const o = official(id); if (!o) return ''; return `<button class="pick has-face" data-open-official="${esc(id)}">${face(id, o.name, o.party, 36)}<b>${esc(o.name)}</b><span class="st">${o.leaving ? 'Leaving' : ''}</span><span class="sub">${esc((lastTitle ? o.titles.at(-1) : o.titles[0]) ?? '')}</span>${leanV(leanOf(o), true)}</button>`; };
-const officeGroup = (title, list, lastTitle) => {
-  if (!list?.length) return `<div class="block"><h3 class="group">${esc(title)}</h3><div class="st" style="white-space:normal">None found yet</div></div>`;
-  const top = list.filter((x) => x.g === 'top'), house = list.filter((x) => x.g === 'house'), state = list.filter((x) => x.g === 'state');
-  return `<div class="block"><h3 class="group">${esc(title)}</h3>${top.map((x) => officialRow(x.id, lastTitle)).join('')}${house.length ? `<details><summary>House (${house.length})</summary>${house.map((x) => officialRow(x.id)).join('')}</details>` : ''}${state.length ? `<details><summary>Statewide offices (${state.length})</summary>${state.map((x) => officialRow(x.id)).join('')}</details>` : ''}</div>`;
-};
-const findOfficial = (a, name) => { const list = Object.values(DATA.officials ?? {}).filter((o) => o.state === a); const low = (name ?? '').toLowerCase(), end = low.split(' ').at(-1); return list.find((o) => o.name.toLowerCase() === low) ?? list.find((o) => o.name.toLowerCase().endsWith(end)); };
+const officialRow = (id, lastTitle) => { const o = official(id); if (!o) return ''; const t = shortTitle(lastTitle ? o.titles.at(-1) : o.titles[0]); return `<button class="pick has-face" data-open-official="${esc(id)}">${face(id, o.name, o.party, 40)}<span class="who"><b>${esc(o.name)}</b><span class="sub">${esc([t, !lastTitle && o.leaving ? 'Leaving' : ''].filter(Boolean).join(' · '))}</span></span>${leanV(leanOf(o), true)}</button>`; };
+const findOfficial = (a, name) => { const list = Object.values(DATA.officials ?? {}).filter((o) => o.state === a); const low = (name ?? '').toLowerCase(), end = low.split(' ').at(-1); return list.find((o) => o.name.toLowerCase() === low) ?? list.find((o) => last(o.name).toLowerCase() === end); };
 const first = (s) => { if (!s) return ''; const m = String(s).replace(/\b(U\.S|Sen|Rep|Gov|Dr|Mr|Ms|Jr|St|Jan|Feb|Mar|Apr|Aug|Sept|Oct|Nov|Dec)\./g, '$1∯').match(/^[\s\S]*?[.!?]["”]?(?=\s+[A-Z“"]|$)/); return (m ? m[0] : String(s)).replace(/∯/g, '.'); };
 const ICONS = { money: '<path d="M12 3v18M16 7.5C15 6 13.6 5.5 12 5.5c-2.2 0-4 1.2-4 3.2 0 4.3 8.2 2.4 8.2 6.6 0 2-1.9 3.2-4.2 3.2-1.8 0-3.4-.7-4.3-2.2"/>', health: '<path d="M12 5v14M5 12h14"/>', move: '<path d="M4 8h13l-3-3M20 16H7l3 3"/>', globe: '<circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.5 2.7 3.8 5.7 3.8 9s-1.3 6.3-3.8 9c-2.5-2.7-3.8-5.7-3.8-9S9.500 5.700 12 3z"/>', chip: '<rect x="7" y="7" width="10" height="10" rx="2"/><path d="M10 3v4M14 3v4M10 17v4M14 17v4M3 10h4M3 14h4M17 10h4M17 14h4"/>', bolt: '<path d="M13 3L5 14h6l-1 7 8-11h-6l1-7z"/>', vote: '<path d="M4 20h16M6 20V9l6-5 6 5v11M10 20v-5h4v5"/>', book: '<path d="M4 5c3-1 6-1 8 1 2-2 5-2 8-1v14c-3-1-6-1-8 1-2-2-5-2-8-1zM12 6v14"/>', home: '<path d="M4 11l8-7 8 7M6 10v10h12V10"/>', dot: '<circle cx="12" cy="12" r="3"/>' };
 const iconFor = (k) => { const s = (k || '').toLowerCase(); const n = /tax|econ|tariff|cost|wage|budget|spend|job|trade|labor|inflation|debt|financ/.test(s) ? 'money' : /health|medic|insulin|drug|abortion|hospital/.test(s) ? 'health' : /immig|border|ice\b|deport/.test(s) ? 'move' : /foreign|war|iran|israel|ukraine|china|defense|military|veteran/.test(s) ? 'globe' : /\bai\b|tech|data|crypto|internet|science/.test(s) ? 'chip' : /climate|energy|environment|water|grid|oil/.test(s) ? 'bolt' : /vot|elect|democra|redistrict|court|constitution|gun|crime|police|justice|rights/.test(s) ? 'vote' : /educ|school|college/.test(s) ? 'book' : /hous|rent|rural|farm|agric/.test(s) ? 'home' : 'dot'; return `<svg class="ic" viewBox="0 0 24 24" aria-hidden="true">${ICONS[n]}</svg>`; };
-const compactRes = (label, who, party, m, source, id) => { const p = party?.[0]; return `<div class="cres"><span>${esc(label)}${who ? `<small>${id ? `<button class="linkname" data-open-official="${esc(id)}">${esc(who)}</button>` : esc(who)}${src(source)}</small>` : ''}</span>${leanBar(party, m)}<span class="num" data-p="${esc(p ?? '')}">${typeof m === 'number' ? `${esc(p)}+${m.toFixed(1)}` : ''}</span></div>`; };
 const countParty = (list) => { const n = { D: 0, R: 0 }; for (const x of list) { const o = official(x.id); if (n[o?.party] !== undefined) n[o.party] += 1; } return n; };
-const houseFold = (label, house) => { if (!house.length) return ''; const n = countParty(house); return `<details><summary>${esc(label)} <span class="st">${n.D} D, ${n.R} R</span></summary>${house.map((x) => officialRow(x.id)).join('')}</details>`; };
+const houseFold = (label, house) => { if (!house.length) return ''; const n = countParty(house); return `<details><summary>${esc(label)} ${pNum(n.D, n.R)}</summary>${house.map((x) => officialRow(x.id)).join('')}</details>`; };
 const officeSec = (title, list, lastTitle, empty) => { const top = (list ?? []).filter((x) => x.g === 'top'), house = (list ?? []).filter((x) => x.g === 'house'), state = (list ?? []).filter((x) => x.g === 'state'); return `<div class="block"><h3 class="group">${esc(title)}</h3>${!list?.length ? `<div class="st">${esc(empty)}</div>` : ''}${top.map((x) => officialRow(x.id, lastTitle)).join('')}${houseFold(`House (${house.length})`, house)}${state.length ? `<details><summary>Statewide offices (${state.length})</summary>${state.map((x) => officialRow(x.id)).join('')}</details>` : ''}</div>`; };
+const raceTile = (a, label, race, kind) => {
+  if (POWER[kind]?.uncalled_states?.includes(a)) return tile(label, '<span class="tnone">Not called</span>', '', race?.source);
+  if (!race) return '';
+  const o = findOfficial(a, race.winner), p = race.party?.[0];
+  return tile(label, `${face(o?.id ?? race.winner, race.winner, p, 30)}${o ? `<button class="tname" data-open-official="${esc(o.id)}">${esc(last(race.winner))}</button>` : `<span class="tname">${esc(last(race.winner))}</span>`}`, `Won by ${race.margin_pct.toFixed(1)}% of the vote`, race.source);
+};
 const statePage = (a) => {
   const s = senate[a], g = gov[a], d = DATA.calendar.dem.find((c) => c.state === a), r = DATA.calendar.gop.find((c) => c.state === a), v = DATA.voter[a] ?? {}, m = DATA.colors[a];
   const mid = DATA.midterm?.[a], off = DATA.offices?.[a], st = DATA.story?.[a];
-  const chips = [`<span class="chip"><b>${DATA.electoral[a]}</b> electoral votes${src(DATA.electoral_source)}</span>`, DATA.house[a] ? `<span class="chip"><b>${DATA.house[a]}</b> House seats${src(DATA.house_source)}</span>` : '', v.mail ? `<span class="chip">${v.mail.primarily_mail ? 'Votes by mail' : v.mail.no_excuse ? 'Mail voting open to all' : 'Mail voting needs an excuse'}${src(v.mail_source)}</span>` : '', v.same_day === true ? `<span class="chip">Same-day registration${src(v.same_day_source)}</span>` : ''].join('');
+  const voting = [v.mail ? (v.mail.primarily_mail ? 'Votes by mail' : v.mail.no_excuse ? 'Mail voting open to all' : 'Mail voting needs an excuse') + src(v.mail_source) : '', v.same_day === true ? `Same-day registration${src(v.same_day_source)}` : ''].filter(Boolean).map((t) => `<span class="chip">${t}</span>`).join('');
   const more = [
     st?.summary && first(st.summary) !== st.summary ? `<p>${esc(st.summary)}${src(st.source)}</p>` : '',
     st?.role ? `<p>${esc(st.role)}${src(st.role_source)}</p>` : '',
@@ -352,61 +625,98 @@ const statePage = (a) => {
     ...(DATA.redistricting[a] ?? []).map((x) => `<p><b>House map:</b> ${esc(x.note)}${src(x.source)}</p>`),
     DATA.county?.[a] ? `<p><b>County map:</b> color from ${esc(DATA.county[a].race)}${src(DATA.county[a].source)}${DATA.pop ? `, height from ${esc(DATA.pop.year)} population${src(DATA.pop.source)}` : ''}. Amber means most votes went to non-party candidates, counted together.</p>` : '',
   ].filter(Boolean).join('');
-  return `${st?.summary ? `<div class="block"><p class="lead" style="margin:0">${esc(first(st.summary))}${src(st.source)}</p></div>` : ''}
-    <div class="block">${m ? compactRes('House', mid?.house ? `${mid.house.D} D, ${mid.house.R} R${mid.house.uncalled ? `, ${mid.house.uncalled} uncalled` : ''}` : '', m.winner, m.margin_pct, mid?.source) : ''}${mid?.senate ? compactRes('Senate', mid.senate.winner, mid.senate.party, mid.senate.margin_pct, mid.senate.source, findOfficial(a, mid.senate.winner)?.id) : ''}${mid?.governor ? compactRes('Governor', mid.governor.winner, mid.governor.party, mid.governor.margin_pct, mid.governor.source, findOfficial(a, mid.governor.winner)?.id) : ''}${mid?.note ? `<div class="st">${esc(mid.note)}</div>` : ''}</div>
+  const tiles = [m || mid?.house?.D || mid?.house?.R || mid?.house?.uncalled ? tile('House', mid?.house ? `<span class="pair">${pNum(mid.house.D, mid.house.R)}</span>` : '', `Seats${mid?.house?.uncalled ? `, ${esc(mid.house.uncalled)} not called` : ''}`, mid?.source) : '', raceTile(a, 'Senate', mid?.senate, 'senate'), raceTile(a, 'Governor', mid?.governor, 'governors')].filter(Boolean).join('');
+  return `${st?.summary ? `<div class="block"><p class="soft">${esc(first(st.summary))}${src(st.source)}</p></div>` : ''}
+    ${tiles ? `<div class="block"><div class="tiles">${tiles}</div>${mid?.note ? `<div class="st">${esc(mid.note)}</div>` : ''}</div>` : ''}
+    ${officeSec('In office', off?.in_office, false, 'None found')}${officeSec('Taking office', off?.taking_office, true, 'No new officeholders')}${officeSec('Running', off?.running, true, 'None found yet')}
     ${pmState(a)}
-    ${officeSec('In office', off?.in_office, false, 'None found')}${officeSec('Taking office', off?.taking_office, false, 'No new officeholders')}${officeSec('Running', off?.running, true, 'None found yet')}
     ${st?.issues?.length ? `<div class="block"><h3 class="group">What's in dispute</h3>${st.issues.map((i) => `<div class="stance">${iconFor(i.issue)}<div><b>${esc(i.issue)}</b>${esc(first(i.text))}${src(i.source)}</div></div>`).join('')}</div>` : ''}
-    <div class="block"><div class="chips">${chips}</div><div class="btns">${safe(v.vote_gov) ? `<a class="btn" href="${esc(v.vote_gov)}" target="_blank" rel="noopener">Register</a>` : ''}${safe(v.election_office) ? `<a class="btn" href="${esc(v.election_office)}" target="_blank" rel="noopener">Election office</a>` : ''}</div></div>
+    <div class="block"><div class="statrow">${stat(DATA.electoral[a], 'electoral votes', DATA.electoral_source)}${DATA.house[a] ? stat(DATA.house[a], 'House seats', DATA.house_source) : ''}</div>${voting ? `<div class="chips">${voting}</div>` : ''}<div class="btns">${safe(v.vote_gov) ? `<a class="btn" href="${esc(v.vote_gov)}" target="_blank" rel="noopener">Register</a>` : ''}${safe(v.election_office) ? `<a class="btn" href="${esc(v.election_office)}" target="_blank" rel="noopener">Election office</a>` : ''}</div></div>
     ${more ? `<details><summary>More</summary>${more}</details>` : ''}`;
 };
 const items = (list) => (list ?? []).map((r) => `<div>${esc(r.text)}${r.who ? ` <span class="st">${esc(r.who)}</span>` : ''}${src(r.source)}</div>`).join('');
 const bgLine = (b) => [b?.hometown, b?.born_year && `Born ${b.born_year}`, b?.education, b?.career, b?.service].filter(Boolean).map((t) => `<div>${esc(t)}</div>`).join('');
 const stanceRow = (k, label, text, source) => `<div class="stance">${iconFor(k)}<div><b>${esc(label)}</b>${esc(text)}${src(source)}</div></div>`;
-const leanHero = (x) => { const l = leanOf(x); return l ? `<div class="bigname"><div class="ends" style="margin-top:8px"><span>Left</span><b>${l.est ? `${Math.abs(l.v) < 0.13 ? 'Near center' : l.v < 0 ? 'Leans left' : 'Leans right'} (estimate)` : `${l.v < 0 ? 'Left' : 'Right'} ${Math.abs(l.v).toFixed(2)}`}</b><span>Right</span></div>${leanV(l, false)}</div>` : ''; };
-const personPage = (p) => { const b = p.background; const facts = [['book', b?.education], ['home', b?.hometown], ['money', b?.career], ['globe', b?.service]].filter(([, v]) => v); return `<div class="block"><div class="who-head">${face(p.name, p.name, p.party, 72)}<div><div style="font-weight:650">${esc(p.role)}</div><span class="st" data-s="${esc(p.status)}">${esc(STATUS[p.status] ?? '')}</span>${b?.born_year ? ` <span class="st">born ${esc(b.born_year)}</span>` : ''}</div></div>${leanHero(p)}</div>
+const leanWord = (l) => (Math.abs(l.v) < 0.13 ? 'Near center' : l.v < 0 ? 'Leans left' : 'Leans right');
+const peerCache = {};
+const leanStrip = (x) => {
+  const l = leanOf(x); if (!l) return '';
+  const chamber = x.score?.chamber, peers = chamber ? (peerCache[chamber] ??= Object.values(DATA.officials).filter((o) => o.score?.chamber === chamber).map((o) => ({ v: o.score.score, p: o.party }))) : [];
+  const X = (v) => 8 + ((Math.max(-1, Math.min(1, v)) + 1) / 2) * 304, bins = {}, r = peers.length > 150 ? 1.5 : 2.2, step = r * 2 + 0.6;
+  const dots = peers.map((d) => { const k = Math.round(X(d.v) / step), n = (bins[k] = (bins[k] ?? 0) + 1), y = 30 + (n % 2 ? -1 : 1) * Math.ceil((n - 1) / 2) * step; return `<circle cx="${(k * step).toFixed(1)}" cy="${y.toFixed(1)}" r="${r}" data-peer="${d.p}"/>`; }).join('');
+  const p = l.v < 0 ? 'D' : 'R';
+  return `<div class="block"><div class="ends"><span>Left</span><b>${leanWord(l)}${l.est ? ' (estimate)' : ''}</b><span>Right</span></div><svg class="strip" viewBox="0 0 320 60" role="img" aria-label="${esc(leanWord(l))}"><path d="M8 30H312"/><path d="M160 6V54"/>${dots}<circle class="self${l.est ? ' est' : ''}" cx="${X(l.v).toFixed(1)}" cy="30" r="6.5" data-p="${p}"/></svg>${x.score ? `<div class="st">${esc(x.score.rank)} of ${esc(x.score.total)} from the ${esc(x.score.side)} in the ${esc(x.score.chamber)}, by votes cast</div>` : x.est?.basis ? `<div class="st" style="white-space:normal">${esc(x.est.basis)}</div>` : ''}</div>`;
+};
+const ageStat = (...list) => { for (const b of list) { if (b?.born) { const y = Number(String(b.born).slice(0, 4)); return [Number(String(DATA.updated).slice(0, 4)) - y - (String(b.born).slice(5) > String(DATA.updated).slice(5) ? 1 : 0), 'years old']; } } for (const b of list) if (b?.born_year) return [b.born_year, 'born']; return null; };
+const yearsFrom = (y) => (y ? Math.max(0, Number(String(DATA.updated).slice(0, 4)) - Number(y)) : null);
+const proStats = (list) => { const l = list.filter((x) => x && x[0] != null && x[0] !== ''); return l.length ? `<div class="block"><div class="statrow wrap">${l.map(([n, t]) => stat(n, t)).join('')}</div></div>` : ''; };
+const winOf = (o) => { const m = DATA.midterm?.[o.state]; for (const [race, kind, label] of [['senate', 'senate', 'Senate'], ['governor', 'governors', 'governor']]) { const w = m?.[race]; if (w?.winner && last(w.winner) === last(o.name) && !POWER[kind]?.uncalled_states?.includes(o.state)) return { pct: w.margin_pct, label, source: w.source }; } return null; };
+const winTile = (o) => { const w = winOf(o); return w ? `<div class="block"><div class="tiles">${tile(`2026 ${w.label} race`, `<span class="num">Won by ${w.pct.toFixed(1)}%</span>`, 'of the vote', w.source)}</div></div>` : ''; };
+const LINK_SITES = [['x', 'X', (v) => `https://x.com/${encodeURIComponent(v)}`], ['facebook', 'Facebook', (v) => `https://www.facebook.com/${encodeURIComponent(v)}`], ['instagram', 'Instagram', (v) => `https://www.instagram.com/${encodeURIComponent(v)}`], ['youtube', 'YouTube', (v) => `https://www.youtube.com/${encodeURIComponent(v)}`]];
+const proLinks = (b, site) => { const web = safe(b?.website) || safe(site); const so = { ...(b?.social ?? {}), ...(b?.x ? { x: b.x } : {}) }; const rows = [web ? ['Website', web] : null, ...LINK_SITES.filter(([k]) => so[k]).map(([k, t, f]) => [t, f(so[k])]), b?.wikipedia ? ['Wikipedia', `https://en.wikipedia.org/wiki/${encodeURIComponent(b.wikipedia.replace(/ /g, '_'))}`] : null, b?.ballotpedia ? ['Ballotpedia', `https://ballotpedia.org/${encodeURIComponent(b.ballotpedia.replace(/ /g, '_'))}`] : null].filter(Boolean); return rows.length ? `<div class="block"><div class="btns" style="padding-top:0">${rows.map(([t, u]) => `<a class="btn" href="${esc(u)}" target="_blank" rel="noopener">${t}</a>`).join('')}</div></div>` : ''; };
+const proCommittees = (b, party) => (b?.committees?.length ? `<div class="block"><h3 class="group">Committees${src(b.sources)}</h3><div class="chips">${b.committees.map((c) => `<span class="chip">${c.role ? `<b>${esc(c.role === 'Chair' ? 'Chair' : `Top ${party === 'D' ? 'Democrat' : 'Republican'}`)}</b> ` : ''}${esc(c.name)}</span>`).join('')}</div></div>` : '');
+const proTimeline = (list) => (list?.length ? `<div class="block"><h3 class="group">Offices held</h3><div class="tl">${list.map((o, i) => `<div${i ? '' : ' class="next"'}><b>${esc(o.years ?? '')}</b>${esc(o.office)}${src(o.source)}</div>`).join('')}</div></div>` : '');
+const proFacts = (rows, source) => { const l = rows.filter(([, v]) => v); return l.length ? `<div class="block"><h3 class="group">Background${src(source)}</h3>${l.map(([ic, v]) => `<div class="fact"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true">${ICONS[ic]}</svg><div>${esc(v)}</div></div>`).join('')}</div>` : ''; };
+const proHead = (id, name, party, title, sub, extra) => `<div class="block prohead">${face(id, name, party, 84)}<div><div class="protitle">${esc(title)}</div><div class="prosub">${esc(sub)}</div>${extra ?? ''}</div></div>`;
+const personPage = (p) => {
+  const b = p.background, bio = p.bio ?? {};
+  const stances = ISSUES.some(([k]) => p.issues?.[k]?.text) ? `<div class="block"><h3 class="group">What they stand for</h3>${ISSUES.map(([k, l]) => { const i = p.issues?.[k]; return i?.text ? stanceRow(k === 'signature' ? (i.label ?? '') : l, k === 'signature' && i.label ? i.label : l, first(i.text), i.source) : ''; }).join('')}</div>` : '';
+  return `${proHead(p.name, p.name, p.party, p.role, [STATUS[p.status], ({ D: 'Democrat', R: 'Republican' })[partyKey(p)]].filter(Boolean).join(' · '))}
+    ${p.why?.text ? `<div class="block"><div class="pullq">${esc(first(p.why.text))}${src(p.why.source)}</div></div>` : ''}
+    ${proStats([ageStat(bio, b), bio.bioguide && bio.since ? [yearsFrom(bio.since), 'years in Congress'] : null])}
+    ${leanStrip(p)}
     ${pmPerson(p.name)}
-    ${p.why?.text ? `<div class="block"><h3 class="group">Why</h3><div class="pullq">${esc(first(p.why.text))}${src(p.why.source)}</div></div>` : ''}
-    ${ISSUES.some(([k]) => p.issues?.[k]?.text) ? `<div class="block"><h3 class="group">What they stand for</h3>${ISSUES.map(([k, l]) => { const i = p.issues?.[k]; return i?.text ? stanceRow(k === 'signature' ? (i.label ?? '') : l, k === 'signature' && i.label ? i.label : l, first(i.text), i.source) : ''; }).join('')}</div>` : ''}
-    ${facts.length ? `<div class="block"><h3 class="group">Background${src(b?.source)}</h3>${facts.map(([ic, v]) => `<div class="fact"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true">${ICONS[ic]}</svg><div>${esc(first(v))}</div></div>`).join('')}</div>` : ''}
-    ${p.status_quote ? `<div class="block"><h3 class="group">On running</h3><div>“${esc(p.status_quote)}” <span class="st">${esc(day(p.status_date))}</span>${src(p.status_source)}</div></div>` : ''}
-    <div class="btns">${safe(p.links?.site) ? `<a class="btn" href="${esc(p.links.site)}" target="_blank" rel="noopener">Website</a>` : ''}</div>
+    ${stances}
+    ${proFacts([['home', bio.birthplace || b?.hometown], ['book', b?.education ? first(b.education) : (bio.education ?? []).join(', ')], ['money', b?.career ? first(b.career) : (bio.work ?? []).join(', ')], ['globe', b?.service ? first(b.service) : '']], b?.source ?? bio.sources)}
+    ${proCommittees(bio, partyKey(p))}
+    ${proTimeline(p.offices)}
+    ${p.status_quote ? `<div class="block"><h3 class="group">On running</h3><div class="soft">“${esc(p.status_quote)}” <span class="st">${esc(day(p.status_date))}</span>${src(p.status_source)}</div></div>` : ''}
+    ${proLinks(bio, p.links?.site)}
     ${p.record?.length ? `<details><summary>Record</summary>${p.record.map((r) => `<p>${esc(r.text)}${src(r.source)}</p>`).join('')}</details>` : ''}
     ${p.criticism?.length ? `<details><summary>Criticism</summary>${p.criticism.map((r) => `<p>${esc(r.text)} <span class="st">${esc(r.who ?? '')}</span>${src(r.source)}</p>`).join('')}</details>` : ''}
-    ${p.offices?.length ? `<details><summary>Offices held</summary><div class="tl">${p.offices.map((o) => `<div><b>${esc(o.years ?? '')}</b>${esc(o.office)}${src(o.source)}</div>`).join('')}</div></details>` : ''}
     ${p.signals?.length ? `<details><summary>Recent moves</summary>${p.signals.map((s) => `<p>${esc(s.text)} <span class="st">${esc(day(s.date))}</span>${src(s.source)}</p>`).join('')}</details>` : ''}
     ${leanOf(p) ? `<details><summary>How lean is measured</summary>${leanBlock(p)}</details>` : ''}
     ${p.labels?.length || p.caucuses?.length || p.ideology ? `<details><summary>Ideology</summary>${p.labels?.length ? `<p>${p.labels.map((l) => `“${esc(l.label)}”${src(l.source)}`).join(' ')}</p>` : ''}${p.caucuses?.length ? `<p>${p.caucuses.map((c) => `${esc(c.name)}${src(c.source)}`).join(' ')}</p>` : ''}${p.ideology ? `<p>${esc(p.ideology)}${src(p.ideology_source)}</p>` : ''}</details>` : ''}
-    <details><summary>Photo credit</summary><p>${photoCredit(p.name) || 'No photo yet'}</p></details>`; };
+    <details><summary>Photo credit</summary><p>${photoCredit(p.name) || 'No photo yet'}</p></details>`;
+};
 const stanceBlocks = (list) => { const rows = (list ?? []).map((s) => stanceRow(s.issue, s.issue, first(s.text), s.source)).join(''); return rows ? `<div class="block"><h3 class="group">What they stand for</h3>${rows}</div>` : ''; };
 const scoreLine = (s) => (s ? `<div class="block"><h3>Voting record</h3>DW-NOMINATE ${s.score > 0 ? '+' : ''}${s.score}: ${s.rank} of ${s.total} from the ${s.side} in the ${s.chamber}, ${s.congress}th Congress${src(s.source)}${safe(DATA.scoreCaveat) ? ` <a class="src" href="${esc(DATA.scoreCaveat)}" target="_blank" rel="noopener">limits</a>` : ''}</div>` : '');
 const photoCredit = (id) => { const c = DATA.faces?.credit?.[id]; return c?.source ? `<div class="st" style="white-space:normal">Photo${c.author ? `: ${esc(c.author)}` : ''}${c.license ? `, ${esc(c.license)}` : ''}${src(c.source)}</div>` : ''; };
-const officialPage = (o) => `<div class="block"><div class="who-head">${face(o.id, o.name, o.party, 72)}<div><div style="font-weight:650">${esc(o.titles[0] ?? '')}${src(o.sources)}</div><span class="st">${esc({ D: 'Democrat', R: 'Republican', I: 'Independent' }[o.party] ?? o.party)}${o.state === 'US' ? '' : `, ${esc(shape[o.state]?.name ?? o.state)}`}</span>${o.leaving ? `<div class="st">${esc(o.leaving)}</div>` : ''}</div></div>${leanHero(o)}</div>${stanceBlocks(o.stances)}${leanOf(o) ? `<details><summary>How lean is measured</summary>${leanBlock(o)}</details>` : ''}<details><summary>Photo credit</summary><p>${photoCredit(o.id) || 'No photo yet'}</p></details>`;
+const officialPage = (o) => {
+  const bio = o.bio ?? {}, partyName = { D: 'Democrat', R: 'Republican', I: 'Independent' }[o.party] ?? o.party, inCongress = bio.bioguide && bio.since;
+  const headTitle = (t) => (/, from /.test(t ?? '') ? t : shortTitle(t ?? '')), now = headTitle(o.titles[0]), next = o.titles.length > 1 ? headTitle(o.titles.at(-1)) : '', termEnd = bio.termEnd && !o.leaving ? bio.termEnd : null;
+  return `${proHead(o.id, o.name, o.party, next && next !== now ? `${now}, then ${next}` : now, [partyName, o.state === 'US' ? '' : shape[o.state]?.name ?? o.state].filter(Boolean).join(' · '), o.leaving ? `<div class="prosub">${esc(o.leaving)}${src(o.sources)}</div>` : '')}
+    ${proStats([ageStat(bio), inCongress ? [yearsFrom(bio.since), 'years in Congress'] : bio.since ? [yearsFrom(bio.since), 'years in this office'] : null, termEnd ? [termEnd, 'term ends'] : null])}
+    ${winTile(o)}
+    ${leanStrip(o)}
+    ${stanceBlocks(o.stances)}
+    ${proCommittees(bio, o.party)}
+    ${proFacts([['home', bio.birthplace], ['book', (bio.education ?? []).join(', ')], ['money', (bio.work ?? []).join(', ')]], bio.sources ?? o.sources)}
+    ${proTimeline(bio.offices)}
+    ${proLinks(bio)}
+    ${leanOf(o) ? `<details><summary>How lean is measured</summary>${leanBlock(o)}</details>` : ''}
+    <details><summary>Photo credit</summary><p>${photoCredit(o.id) || 'No photo yet'}</p></details>`;
+};
 const meter = (parts, tick) => { const sum = parts.reduce((t, p) => t + p.v, 0) || 1; return `<span class="meter" role="img" aria-label="${esc(parts.map((p) => `${p.label} ${p.v}`).join(', '))}" title="${esc(parts.map((p) => `${p.label} ${p.v}`).join(', '))}">${parts.map((p) => `<i ${p.attr} style="flex:${p.v}"></i>`).join('')}${tick ? `<b class="tick" style="left:${(tick / sum) * 100}%"></b>` : ''}</span>`; };
-const seatRow = (label, pair, tick) => `<div class="mrow"><span>${esc(label)}</span><b>${esc(pair[0])}</b>${meter([{ label: 'Democrats', v: pair[0], attr: 'data-p="D"' }, { label: 'Republicans', v: pair[1], attr: 'data-p="R"' }], tick)}<b>${esc(pair[1])}</b></div>`;
-const seatBlock = (label, v, tick) => (v ? `<div class="mhead">${esc(label)}${src(v.source)}${v.uncalled ? ` <span class="st" style="font-weight:400">${esc(v.uncalled)} uncalled</span>` : ''}</div>${seatRow('Now', v.now, tick)}${seatRow('January', v.next, tick)}` : '');
-const hbar = (label, v, max, source) => `<div class="hbar"><span>${esc(label)}${src(source)}</span><span class="track" title="${esc(`${label} ${v}%`)}"><i style="width:${(v / max) * 100}%"></i></span><b>${esc(v)}%</b></div>`;
+const hbar = (raw, v, max, source) => { const label = String(raw).replace(/_/g, ' '), who = DATA.people.find((p) => p.name === label || pmNorm(p.name) === pmNorm(label) || last(p.name) === label); return `<div class="hbar"><span class="hname">${who ? face(who.name, who.name, who.party, 24) : ''}<span>${esc(label)}${src(source)}</span></span><span class="track" title="${esc(`${label} ${v}%`)}"><i style="width:${(v / max) * 100}%"></i></span><b>${esc(v)}%</b></div>`; };
 const nowPage = () => {
   const n = DATA.now; if (!n) return '';
   const days = Math.max(0, Math.ceil((Date.UTC(2028, 10, 7) - Date.now()) / 864e5));
-  const P = n.power, flip = P.senate.next[0] > P.senate.next[1] && P.house.next[0] > P.house.next[1];
+  const P = n.power;
   const court = (P.court?.by_appointing_president ?? []).flatMap((c) => Array(c.count).fill(/Obama|Biden/.test(c.president) ? 'D' : 'R')).sort();
   const pollName = (x) => (/NBC/.test(x) ? 'NBC' : /Reuters/.test(x) ? 'Reuters' : x.split(' ')[0]);
   const issueMax = Math.max(...n.top_issues.map((i) => i.pct));
   const dir = n.mood.find((m) => /direction/i.test(m.measure)), ballot = n.mood.find((m) => /Generic/i.test(m.measure));
+  const issueName = (t) => t.replace(/ \(poll category.*\)/, ' (the system, not the party)');
   return `<div class="block"><div class="hero"><b>${days.toLocaleString()}</b><span>days until Election Day, ${esc(DATA.facts[0].value)}${src(DATA.facts[0].source)}</span></div></div>
-    <div class="block"><p class="lead">${flip ? 'Democrats take Congress in January. Republicans keep the White House.' : 'Who holds power'}</p>
-      <div class="who-head" style="padding-bottom:4px">${face('US|Donald Trump', 'Donald Trump', 'R', 36)}<button class="linkname" data-open-official="US|Donald Trump" style="text-decoration:none">Donald Trump</button><span class="st">President to Jan 2029${src(P.president?.sources)}</span></div>
-      ${seatBlock('Senate', P.senate, 50)}${seatBlock('House', P.house, 217.5)}${seatBlock('Governors', P.governors, 25)}
-      ${court.length ? `<div class="mhead">Supreme Court${src(P.court.by_appointing_president?.[0]?.source)}</div><div class="seats">${court.map((c) => `<span class="dot" data-p="${c}"></span>`).join('')}</div><div class="st">Justices by the party of the president who appointed them</div>` : ''}
-      <div class="legend"><span><i data-p="D"></i>Democrats</span><span><i data-p="R"></i>Republicans</span></div></div>
-    ${n.approval?.length ? `<div class="block"><p class="lead">Most voters disapprove of the president</p>${n.approval.map((a) => `<div class="mrow"><span>${esc(pollName(a.pollster))}</span><b>${esc(a.approve)}</b>${meter([{ label: 'Approve', v: a.approve, attr: 'data-c="a"' }, { label: 'Disapprove', v: a.disapprove, attr: 'data-c="m"' }])}<b>${esc(a.disapprove)}</b></div>`).join('')}<div class="legend"><span><i data-c="a"></i>Approve</span><span><i data-c="m"></i>Disapprove</span>${src(n.approval[0]?.source)}</div></div>` : ''}
-    ${dir ? `<div class="block"><p class="lead">${esc(dir.raw.wrong_track)}% say the country is on the wrong track</p><div class="mrow"><span>Direction</span><b>${esc(dir.raw.right_direction)}</b>${meter([{ label: 'Right direction', v: dir.raw.right_direction, attr: 'data-c="a"' }, { label: 'Wrong track', v: dir.raw.wrong_track, attr: 'data-c="m"' }])}<b>${esc(dir.raw.wrong_track)}</b></div><div class="legend"><span><i data-c="a"></i>Right direction</span><span><i data-c="m"></i>Wrong track</span>${src(dir.source)}</div>
-      ${ballot ? `<div class="mhead">Which party voters want in Congress${src(ballot.source)}</div><div class="mrow"><span>${esc(pollName(ballot.pollster))}</span><b>${esc(ballot.raw.democratic)}</b>${meter([{ label: 'Democrats', v: ballot.raw.democratic, attr: 'data-p="D"' }, { label: 'Republicans', v: ballot.raw.republican, attr: 'data-p="R"' }])}<b>${esc(ballot.raw.republican)}</b></div>` : ''}</div>` : ''}
-    ${pmCongress()}
-    ${n.top_issues?.length ? `<div class="block"><p class="lead">${esc(n.top_issues[0].issue)} matters most to voters</p>${n.top_issues.map((i) => hbar(i.issue, i.pct, issueMax, i.source)).join('')}</div>` : ''}
-    ${n.disputes?.length ? `<div class="block"><p class="lead" style="margin-bottom:2px">The big fights</p></div>${n.disputes.map((d) => `<details><summary>${iconFor(d.issue)} ${esc(d.issue)}</summary><p>${esc(first(d.now))}${src(d.now_source)}</p><div class="pair"><div data-p="D"><b>Democrats</b><br>${esc(first(d.dem))}${src(d.dem_source)}</div><div data-p="R"><b>Republicans</b><br>${esc(first(d.rep))}${src(d.rep_source)}</div></div></details>`).join('')}` : ''}
-    ${DATA.timeline?.length ? `<div class="block"><p class="lead">What's next</p><div class="tl">${DATA.timeline.map((x) => `<div><b>${esc(x.when)}</b>${esc(x.what)}${src(x.source)}</div>`).join('')}</div></div>` : ''}`;
+    ${n.approval?.length ? `<div class="block"><p class="lead">Most voters disapprove of the president</p><div class="rings">${n.approval.map((a) => ring(a.approve, pollName(a.pollster), `${a.disapprove} disapprove`, a.source)).join('')}</div></div>` : ''}
+    ${dir ? `<div class="block"><p class="lead">${esc(dir.raw.wrong_track)}% say the country is on the wrong track${src(dir.source)}</p>${pict([{ label: 'Right direction', v: dir.raw.right_direction, t: 'a' }, { label: 'Wrong track', v: dir.raw.wrong_track, t: 'b' }])}<div class="legend"><span><i data-c="a"></i>Right direction</span><span><i data-c="b"></i>Wrong track</span></div></div>` : ''}
+    ${ballot ? `<div class="block"><h3 class="group">Which party voters want in Congress${src(ballot.source)}</h3>${pairBig(ballot.raw.democratic, ballot.raw.republican)}</div>` : ''}
+    ${n.top_issues?.length ? `<div class="block"><p class="lead">${esc(n.top_issues[0].issue)} matters most to voters</p>${n.top_issues.map((i) => hbar(issueName(i.issue), i.pct, issueMax, i.source)).join('')}</div>` : ''}
+    ${DATA.timeline?.length ? `<div class="block"><h3 class="group">What's next</h3><div class="tl">${DATA.timeline.map((x, i) => `<div${i ? '' : ' class="next"'}><b>${esc(x.when)}</b>${esc(x.what)}${src(x.source)}</div>`).join('')}</div></div>` : ''}
+    ${court.length ? `<div class="block"><h3 class="group">Supreme Court${src(P.court.by_appointing_president?.[0]?.source)}</h3>${seatDots(court.filter((c) => c === 'D').length, court.filter((c) => c === 'R').length)}<div class="st">Justices by the party of the president who appointed them</div></div>` : ''}
+    ${n.disputes?.length ? `<div class="block"><h3 class="group">The big fights</h3>${n.disputes.map((d) => `<details><summary>${iconFor(d.issue)} ${esc(d.issue)}</summary><p>${esc(first(d.now))}${src(d.now_source)}</p><div class="pair2"><div data-p="D"><b>Democrats</b>${esc(first(d.dem))}${src(d.dem_source)}</div><div data-p="R"><b>Republicans</b>${esc(first(d.rep))}${src(d.rep_source)}</div></div></details>`).join('')}</div>` : ''}
+    ${pmCongress()}`;
 };
 const MARK = { live: {}, asked: new Set() };
 const pmSlugs = { dem: 'democratic-presidential-nominee-2028', rep: 'republican-presidential-nominee-2028', win: 'presidential-election-winner-2028', party: 'which-party-wins-2028-us-presidential-election', house: 'which-party-will-win-the-house-in-2028', senate: 'which-party-will-win-the-senate-in-2028' };
@@ -416,15 +726,15 @@ const pmRows = (e) => (e.markets ?? []).map((m) => { const bid = Number(m.bestBi
 const pmStamp = (slug) => (MARK.live[slug] ? 'Live' : DATA.markets?.as_of ? day(DATA.markets.as_of.slice(0, 10)) : '');
 const pmLink = (slug) => `<a class="src" href="https://polymarket.com/event/${esc(slug)}" target="_blank" rel="noopener" title="polymarket.com" aria-label="See on Polymarket">↗</a>`;
 const pmBars = (slug, title, n = 5) => { const e = pmEvent(slug); if (!e?.rows?.length) return ''; const rows = e.rows.slice(0, n), max = rows[0].p; return `<div class="mhead">${esc(title)}${pmLink(slug)}</div>${rows.map((x) => hbar(x.name, Math.round(x.p * 100), max * 100)).join('')}`; };
-const pmParty = (slug, title) => { const e = pmEvent(slug); if (!e?.rows?.length) return ''; const pick = (re) => e.rows.find((x) => re.test(x.name))?.p; const d = pick(/democrat/i), r = pick(/republican/i); if (d == null || r == null) return ''; const a = Math.round(d * 100), b = Math.round(r * 100); return `<div class="mrow"><span>${esc(title)}${pmLink(slug)}</span><b>${a}</b>${meter([{ label: 'Democrats', v: a, attr: 'data-p="D"' }, { label: 'Republicans', v: b, attr: 'data-p="R"' }])}<b>${b}</b></div>`; };
+const pmParty = (slug, title) => { const e = pmEvent(slug); if (!e?.rows?.length) return ''; const pick = (re) => e.rows.find((x) => re.test(x.name))?.p; const d = pick(/democrat/i), r = pick(/republican/i); if (d == null && r == null) return ''; const a = Math.round((d ?? 1 - r) * 100), b = Math.round((r ?? 1 - d) * 100); return `<div class="mrow"><span>${esc(title)}${pmLink(slug)}</span><b>${a}</b>${meter([{ label: 'Democrats', v: a, attr: 'data-p="D"' }, { label: 'Republicans', v: b, attr: 'data-p="R"' }])}<b>${b}</b></div>`; };
 const pmNote = (slug) => `<div class="st">Polymarket betting odds, percent. Not a fact or a forecast. ${esc(pmStamp(slug))}</div>`;
-const pmPerson = (name) => { const k = pmNorm(name); const line = (slug, label) => { const x = pmEvent(slug)?.rows?.find((r) => pmNorm(r.name) === k); return x ? `<span class="chip"><b>${Math.round(x.p * 100)}%</b> ${esc(label)}${pmLink(slug)}</span>` : ''; }; const chips = line(pmSlugs.dem, 'Democratic nominee') + line(pmSlugs.rep, 'Republican nominee') + line(pmSlugs.win, 'wins in 2028'); return chips ? `<div class="block" data-pm="person"><h3 class="group">Betting odds</h3><div class="chips">${chips}</div>${pmNote(pmSlugs.win)}</div>` : ''; };
+const pmPerson = (name) => { const k = pmNorm(name); const line = (slug, label) => { const x = pmEvent(slug)?.rows?.find((r) => pmNorm(r.name) === k); return x ? tile(label, `<span class="num">${Math.round(x.p * 100)}%</span>`, '', `https://polymarket.com/event/${slug}`) : ''; }; const chips = line(pmSlugs.dem, 'Democratic nominee') + line(pmSlugs.rep, 'Republican nominee') + line(pmSlugs.win, 'Wins in 2028'); return chips ? `<div class="block" data-pm="person"><h3 class="group">Betting odds</h3><div class="tiles">${chips}</div>${pmNote(pmSlugs.win)}</div>` : ''; };
 const pmPresident = () => { const body = pmParty(pmSlugs.party, 'White House') + pmBars(pmSlugs.dem, 'Democratic nominee') + pmBars(pmSlugs.rep, 'Republican nominee') + pmBars(pmSlugs.win, 'Wins in 2028'); return body ? `<div class="block"><p class="lead">What bettors think</p>${body}${pmNote(pmSlugs.win)}</div>` : ''; };
 const pmCongress = () => { const body = pmParty(pmSlugs.party, 'White House') + pmParty(pmSlugs.senate, 'Senate') + pmParty(pmSlugs.house, 'House'); return body ? `<div class="block"><p class="lead">What bettors think about 2028</p>${body}<div class="legend"><span><i data-p="D"></i>Democrats</span><span><i data-p="R"></i>Republicans</span></div>${pmNote(pmSlugs.party)}</div>` : ''; };
 const pmState = (a) => { const slug = DATA.markets?.states?.[a]; const row = slug ? pmParty(slug, '2028') : ''; return row ? `<div class="block"><h3 class="group">Who bettors expect to win here</h3>${row}${pmNote(slug)}</div>` : ''; };
 const pmFetch = (slugs) => { const todo = slugs.filter((s) => s && !MARK.asked.has(s)); if (!todo.length) return; todo.forEach((s) => MARK.asked.add(s)); Promise.allSettled(todo.map((s) => fetch(`https://gamma-api.polymarket.com/events?slug=${encodeURIComponent(s)}`).then((r) => r.json()).then(([e]) => { if (e) MARK.live[s] = { rows: pmRows(e) }; }))).then((all) => { if (all.some((x) => x.status === 'fulfilled')) refreshWindow(); }); };
 const refreshWindow = () => { const body = app.querySelector('.win .winbody'), top = body?.scrollTop ?? 0, open = [...app.querySelectorAll('.win details')].map((d) => d.open); q('.winslot').innerHTML = phone() ? '' : windowHtml(); q('.phoneslot').innerHTML = phone() ? windowHtml() : ''; const next = app.querySelector('.win .winbody'); if (next) next.scrollTop = top; [...app.querySelectorAll('.win details')].forEach((d, i) => { d.open = !!open[i]; }); };
-const pollChart = (p) => { const rows = Object.entries(p.results).filter(([k]) => !/undecided|someone|other|don't know|^none$/i.test(k)).sort((a, b) => b[1] - a[1]).slice(0, 5), max = Math.max(...rows.map(([, v]) => v), 1); return `<div class="mhead">${esc(p.race)}: ${esc(p.pollster)}${src(p.source)} <span class="st" style="font-weight:400">${esc(p.dates)}</span></div>${rows.map(([k, v]) => hbar(k, v, max)).join('')}`; };
+const pollChart = (p) => { const rows = Object.entries(p.results).filter(([k]) => !/undecided|someone|other|don't know|^none$/i.test(k)).sort((a, b) => b[1] - a[1]).slice(0, 5), max = Math.max(...rows.map(([, v]) => v), 1); return `<div class="mhead">${esc(p.race)}: ${esc(p.pollster)}${src(p.source)} <span class="st" style="font-weight:400">${esc(String(p.dates).split(' to ').map(shortDay).join(' – '))}</span></div>${rows.map(([k, v]) => hbar(k, v, max)).join('')}`; };
 const listPage = () => {
   if (ui.tab === 'now') return nowPage();
   if (ui.tab === 'president') {
@@ -432,23 +742,29 @@ const listPage = () => {
     const running = sorted.filter((p) => p.status !== 'ruled_out'), out = sorted.filter((p) => p.status === 'ruled_out');
     const n = (s) => DATA.people.filter((p) => p.status === s).length;
     const latest = ['Democratic', 'Republican'].map((r) => DATA.polls.filter((p) => p.race === r).sort((a, b) => String(b.dates).localeCompare(String(a.dates)))[0]).filter(Boolean);
-    return `<div class="block"><p class="lead">No major candidate has declared yet</p><div class="chips"><span class="chip"><b>${n('considering')}</b> considering</span><span class="chip"><b>${n('unstated')}</b> haven't said</span><span class="chip"><b>${n('filed')}</b> long shots filed</span><span class="chip"><b>${n('ruled_out')}</b> said no</span></div></div>
+    const group = (st, title) => { const l = running.filter((p) => p.status === st); return l.length ? `<h4 class="subgroup">${esc(title)} <span>${l.length}</span></h4>${ui.issue ? l.map(personRow).join('') : `<div class="cells">${l.map(personCell).join('')}</div>`}` : ''; };
+    return `<div class="block"><p class="lead">No major candidate has declared yet</p></div>
     <div class="block"><h3 class="group">In office</h3>${(DATA.national ?? []).map((id) => officialRow(id)).join('')}</div>
     ${latest.length ? `<div class="block"><h3 class="group">Latest polls</h3>${latest.map(pollChart).join('')}</div>` : ''}
     ${pmPresident()}
-    <div class="block"><h3 class="group">Running</h3><div class="filters"><select data-filter="party" aria-label="Party">${[['all', 'All parties'], ['D', 'Democrats'], ['R', 'Republicans'], ['O', 'Others']].map(([k, l]) => `<option value="${k}"${ui.party === k ? ' selected' : ''}>${l}</option>`).join('')}</select><select data-filter="issue" aria-label="Issue"><option value="">Compare an issue</option>${ISSUES.map(([k, l]) => `<option value="${k}"${ui.issue === k ? ' selected' : ''}>${l}</option>`).join('')}</select></div>${running.map(personRow).join('')}</div>
+    <div class="block"><h3 class="group">Running</h3><div class="filters"><select data-filter="party" aria-label="Party">${[['all', 'All parties'], ['D', 'Democrats'], ['R', 'Republicans'], ['O', 'Others']].map(([k, l]) => `<option value="${k}"${ui.party === k ? ' selected' : ''}>${l}</option>`).join('')}</select><select data-filter="issue" aria-label="Issue"><option value="">Compare an issue</option>${ISSUES.map(([k, l]) => `<option value="${k}"${ui.issue === k ? ' selected' : ''}>${l}</option>`).join('')}</select></div>${group('considering', 'Considering')}${group('unstated', "Hasn't said")}${group('filed', 'Filed, long shots')}</div>
     ${out.length ? `<details><summary>Said no (${out.length})</summary>${out.map(personRow).join('')}</details>` : ''}
     <details><summary>All polls</summary>${DATA.polls.map(pollChart).join('')}</details>
     ${DATA.thirdTerm ? `<details><summary>Can Trump run again?</summary><p>${esc(first(DATA.thirdTerm.text))}</p><p>${DATA.thirdTerm.sources.map(src).join('')}</p></details>` : ''}
     ${DATA.third.length ? `<details><summary>Other parties</summary>${DATA.third.map((x) => `<p><b>${esc(x.name)}</b> ${esc(x.status)}${src(x.source)}</p>`).join('')}</details>` : ''}`;
   }
   if (ui.tab === 'primaries') {
-    const rows = (l, party) => `<div class="tl">${l.map((c, i) => `<div><b>${c.date ? esc(day(c.date)) : `No. ${i + 1}, no date yet`}</b><button class="linkname" data-open-state="${esc(c.state)}" style="text-decoration:none">${esc(shape[c.state]?.name ?? c.state)}</button></div>`).join('')}</div>`;
-    return `<div class="block"><p class="lead">South Carolina votes first for Democrats. Iowa goes first for Republicans.</p></div><div class="block"><h3 class="group"><span class="dot" data-p="D" style="display:inline-block;margin-right:6px"></span>Democrats${src(DATA.calendar.sources[0])}</h3>${rows(DATA.calendar.dem)}</div><div class="block"><h3 class="group"><span class="dot" data-p="R" style="display:inline-block;margin-right:6px"></span>Republicans${src(DATA.calendar.sources[1])}</h3>${rows(DATA.calendar.gop)}</div><div class="block"><h3 class="group">Conventions</h3>${DATA.calendar.conventions.map((c) => `<div>${esc(c.party)}: ${esc([c.city, c.dates].filter(Boolean).join(', '))}${src(c.source)}</div>`).join('')}</div>`;
+    const rows = (l) => `<div class="tl">${l.map((c, i) => `<div${i ? '' : ' class="next"'}><b>${c.date ? esc(shortDay(c.date)) : `No. ${i + 1}, no date`}</b><button class="linkname" data-open-state="${esc(c.state)}" style="text-decoration:none">${esc(shape[c.state]?.name ?? c.state)}</button></div>`).join('')}</div>`;
+    return `<div class="block"><p class="lead">South Carolina votes first for Democrats. Iowa goes first for Republicans.</p><div class="twocol"><div><h3 class="group"><span class="dot" data-p="D"></span>Democrats${src(DATA.calendar.sources[0])}</h3>${rows(DATA.calendar.dem)}</div><div><h3 class="group"><span class="dot" data-p="R"></span>Republicans${src(DATA.calendar.sources[1])}</h3>${rows(DATA.calendar.gop)}</div></div></div><div class="block"><h3 class="group">Conventions</h3><div class="tiles">${DATA.calendar.conventions.map((c) => tile(c.party, `<span class="tcity">${esc(c.city || 'To be set')}</span>`, esc(c.dates ?? ''), c.source)).join('')}</div></div>`;
+  }
+  if (ui.when !== '2028') {
+    const k = bodyKey(), b = BODIES.find((x) => x.k === k), pair = POWER[k][ui.when], rest = b.total - pair[0] - pair[1];
+    const rows = ui.when === 'now' ? SHAPES.filter((s) => s.polys.length).sort((x, y) => x.name.localeCompare(y.name)).map((s) => { const who = inOffice(s.abbr, k === 'senate' ? /^(U\.S\. )?Senator/ : /^Governor/); return `<button class="pick has-faces" data-open-state="${s.abbr}"><span class="stack">${who.map((o) => face(o.id, o.name, o.party, 32)).join('')}</span><span class="who"><b>${esc(s.name)}</b><span class="sub">${esc(who.map((o) => last(o.name)).join(', '))}</span></span></button>`; }).join('') : `<div class="iflips">${flipsHtml(k)}</div>`;
+    return `<div class="block"><p class="soft">${esc(b.about)}</p></div><div class="block">${pairBig(pair[0], pair[1])}${k === 'house' ? '' : seatDots(pair[0], pair[1], rest)}${rest ? `<div class="st">${rest} ${ui.when === 'now' ? 'vacant' : 'not called'}</div>` : ''}</div><div class="block">${rows}</div>`;
   }
   const list = ui.tab === 'senate' ? DATA.senate : DATA.governors, D = list.filter((x) => x.party === 'D').length, R = list.filter((x) => x.party === 'R').length;
-  return `<div class="block"><p class="lead">${list.length} ${ui.tab === 'senate' ? 'Senate' : 'governor'} races in 2028</p><div class="mrow"><span>Held by</span><b>${D}</b>${meter([{ label: 'Democrats', v: D, attr: 'data-p="D"' }, { label: 'Republicans', v: R, attr: 'data-p="R"' }])}<b>${R}</b></div><div class="legend"><span><i data-p="D"></i>Democrats</span><span><i data-p="R"></i>Republicans</span></div></div>
-    ${list.map((r) => { const name = r.holder ?? r.incumbent, id = `${r.state}|${name}`, o = official(id); return `<button class="pick has-face" data-open-state="${esc(r.state)}">${face(id, name, r.party, 36)}<b>${esc(shape[r.state]?.name ?? r.state)}</b><span class="st"></span><span class="sub">${esc(name)}${r.plans || r.term_status ? `: ${esc(r.plans ?? r.term_status)}` : ''}</span>${leanV(leanOf(o), true)}</button>`; }).join('')}`;
+  return `<div class="block"><p class="lead">${list.length} ${ui.tab === 'senate' ? 'Senate' : 'governor'} races in 2028</p>${pairBig(D, R)}${seatDots(D, R, list.length - D - R)}</div>
+    <div class="block">${list.map((r) => { const name = r.holder ?? r.incumbent, id = `${r.state}|${name}`, o = official(id); return `<button class="pick has-face" data-open-state="${esc(r.state)}">${face(id, name, r.party, 40)}<span class="who"><b>${esc(shape[r.state]?.name ?? r.state)}</b><span class="sub">${esc([name, r.plans ?? r.term_status].filter(Boolean).join(' · '))}</span></span>${leanV(leanOf(o), true)}</button>`; }).join('')}</div>`;
 };
 const current = () => ui.stack.at(-1);
 const windowHtml = () => {
@@ -456,12 +772,12 @@ const windowHtml = () => {
   const off = now.kind === 'official' ? official(now.id) : null;
   const title = now.kind === 'state' ? shape[now.id].name : now.kind === 'person' ? now.id : off ? off.name : TABS.find(([k]) => k === ui.tab)[1];
   const body = now.kind === 'state' ? statePage(now.id) : now.kind === 'person' ? personPage(personNamed(now.id)) + (Object.values(DATA.officials ?? {}).filter((o) => o.person === now.id).map((o) => stanceBlocks(o.stances)).join('')) : off ? officialPage(off) : listPage();
-  return `<aside class="win" aria-label="${esc(title)}"><div class="winhead">${ui.stack.length > 1 ? `<button class="icon back" data-back aria-label="Back">${ICON.back}</button>` : ''}<h2>${esc(title)}</h2>${ui.stack.length ? `<button class="icon" data-close aria-label="Close">${ICON.close}</button>` : ''}</div><div class="winbody">${body}</div></aside>`;
+  return `<aside class="win" aria-label="${esc(title)}"><div class="winhead">${ui.stack.length > 1 ? `<button class="icon back" data-back aria-label="Back">${ICON.back}</button>` : ''}<h2>${esc(title)}</h2>${now.kind === 'state' ? `<a class="icon" href="${esc(location.href.split('#')[0])}#${esc(now.id)}" target="_blank" rel="noopener" aria-label="Open a link to ${esc(title)}" title="Link to ${esc(title)}"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M10 14a4 4 0 0 0 6 .5l3-3a4 4 0 0 0-5.700-5.700l-1.500 1.500"/><path d="M14 10a4 4 0 0 0-6-.500l-3 3a4 4 0 0 0 5.700 5.700l1.500-1.500"/></svg></a>` : ''}${ui.stack.length ? `<button class="icon" data-close aria-label="Close">${ICON.close}</button>` : ''}</div><div class="winbody">${body}</div></aside>`;
 };
 const powerHtml = () => {
   const p = DATA.now?.power; if (ui.tab !== 'now' || !p || ui.stack.length) return '';
-  const row = (label, v) => (v ? `<span><small>${label}</small><b><i data-p="D">${esc(v.now[0])}</i>–<i data-p="R">${esc(v.now[1])}</i></b> <small style="display:inline">now</small><br><b><i data-p="D">${esc(v.next[0])}</i>–<i data-p="R">${esc(v.next[1])}</i></b> <small style="display:inline">Jan</small></span>` : '');
-  return `<button class="power" data-list>${row('Senate', p.senate)}${row('House', p.house)}${row('Governors', p.governors)}</button>`;
+  const row = (label, v) => (v ? `<span><small>${label}</small><b>${pNum(v.now[0], v.now[1])}</b></span>` : '');
+  return `<button class="power" data-intro>${row('Senate', p.senate)}${row('House', p.house)}${row('Governors', p.governors)}</button>`;
 };
 let scene = null, shownCounties = '', countyToken = 0;
 const loadCounties = (a) => new Promise((done) => {
@@ -473,7 +789,7 @@ const loadCounties = (a) => new Promise((done) => {
   document.head.append(tag);
 });
 const countyResult = (a, id) => { const r = DATA.county?.[a]?.counties?.[id]; if (!r) return null; const [D, R, total, I = 0] = r; const top = [['D', D], ['R', R], ['I', I]].sort((x, y) => y[1] - x[1]); return { winner: top[0][0], margin_pct: ((top[0][1] - top[1][1]) / total) * 100, D, R, I, total }; };
-const syncReset = () => { q('.reset').hidden = !(scene?.panned() || openState()); };
+const syncReset = () => { q('.reset').hidden = !(scene?.panned() || openState()); q('canvas.gl').classList.toggle('zoomed', (scene?.zoomLevel() ?? 1) > 1.01); };
 const syncScene = () => {
   if (!scene) return;
   const open = openState();
@@ -495,14 +811,40 @@ const paintScene = () => {
   if (!scene) return;
   scene.style(Object.fromEntries(SHAPES.map((s) => [s.abbr, css(tone(s.abbr))])), Object.fromEntries(SHAPES.map((s) => [s.abbr, rise(s.abbr)])));
   scene.theme(css('--edge'), css('--edge-hot'));
+  scene.raise(raisedNow());
   scene.leadColor(css('--text-3'));
 };
+let thumbAt = null, lastPage = '';
+const swatch = (c, t) => `<span><i style="background:var(${c})"></i>${esc(t)}</span>`;
+const words = (t) => `<span class="kw">${esc(t)}</span>`;
+const keyHtml = () => {
+  const open = openState(), parties = swatch('--d3', 'Democrats') + swatch('--r3', 'Republicans'), tall = words('Taller: more electoral votes');
+  if (open) return !shape[open].polys.length ? '' : Object.keys(DATA.county?.[open]?.counties ?? {}).length ? words('Darker: wider win') + words('Taller: more people') : words('Votes are not reported by county here') + words('Taller: more people');
+  if (ui.tab === 'now') return parties + (ui.when === 'next' ? swatch('--gray', 'Not called') : '') + words(ui.when === 'vote' ? 'Darker: wider win' : 'Color: Senate seats and governor') + (ui.when === 'vote' ? '' : words('Darker: holds all three')) + tall;
+  if (ui.tab === 'president') return words('Number: electoral votes') + tall + words('Color: 2028 betting odds') + swatch('--land', 'No odds');
+  if (ui.tab === 'senate' || ui.tab === 'governor') { if (ui.when === '2028') return parties + words('Raised: on the 2028 ballot'); return parties + (ui.tab === 'senate' ? swatch('--both', 'One of each') : '') + (ui.when === 'next' ? `${swatch('--gray', 'Not called')}${words('Raised: changes party')}` : ''); }
+  return parties + swatch('--accent-fill', 'Both parties') + words('Taller: votes earlier');
+};
+const syncCtl = () => {
+  const seg = q('.mapseg'), opts = WHENS[ui.tab], k = opts ? opts.findIndex(([w]) => w === ui.when) : 0;
+  seg.hidden = !opts || !!openState();
+  if (opts) { if (seg.dataset.tab !== ui.tab) { seg.dataset.tab = ui.tab; seg.innerHTML = `<span class="segthumb"></span>${opts.map(([w, t]) => `<button data-map-when="${w}">${t}</button>`).join('')}`; } seg.style.setProperty('--n', opts.length); seg.style.setProperty('--k', Math.max(0, k)); seg.querySelectorAll('button').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.mapWhen === ui.when))); }
+  q('.mapkey').innerHTML = keyHtml();
+};
+const setWhen = (w) => { ui.when = w; hideCard(); paintScene(); buildTags(); render(); moveTags(); };
+const finderRows = (t) => { const low = t.trim().toLowerCase(); return [...SHAPES].sort((a, b) => a.name.localeCompare(b.name)).filter((s) => !low || s.name.toLowerCase().includes(low) || s.abbr.toLowerCase() === low).map((s) => `<button data-tag-state="${s.abbr}"><span>${esc(s.name)}</span><span class="st">${s.abbr}</span></button>`).join(''); };
+const setFinder = (on) => { ui.finder = on; const f = q('.finder'); f.hidden = !on; if (on) { f.innerHTML = `<input type="search" placeholder="Find a state" aria-label="Find a state" autocomplete="off"><div class="finderlist">${finderRows('')}</div>`; f.firstElementChild.focus({ preventScroll: true }); } else f.innerHTML = ''; };
+const moveThumb = () => { const t = q('.tabthumb'), on = q('.tab[aria-selected="true"]'); if (!t || !on || !on.offsetWidth) return; const to = { x: on.offsetLeft, w: on.offsetWidth }; if (thumbAt) { t.style.transition = 'none'; t.style.width = `${thumbAt.w}px`; t.style.transform = `translateX(${thumbAt.x}px)`; t.getBoundingClientRect(); t.style.transition = ''; } t.style.width = `${to.w}px`; t.style.transform = `translateX(${to.x}px)`; thumbAt = to; };
 const render = () => {
   const full = !!document.fullscreenElement;
-  q('.bar').innerHTML = `${TABS.map(([k, t]) => `<button class="tab" role="tab" data-tab="${k}" aria-selected="${ui.tab === k}">${t}</button>`).join('')}<span class="gap"></span><span class="blurb">${esc(BLURB[ui.tab])}</span><button class="icon list" data-list aria-label="List">${ICON.list}</button>${document.fullscreenEnabled && window.parent !== window && !viewport ? `<button class="icon fs" data-fs aria-label="${full ? 'Exit full screen' : 'Full screen'}">${full ? ICON.shrink : ICON.full}</button>` : ''}`;
+  q('.bar').innerHTML = `${TABS.map(([k, t]) => `<button class="tab" role="tab" data-tab="${k}" aria-selected="${ui.tab === k}">${t}</button>`).join('')}<span class="tabthumb"></span><button class="icon list" data-list aria-label="List">${ICON.list}</button>${document.fullscreenEnabled && window.parent !== window && !viewport ? `<button class="icon fs" data-fs aria-label="${full ? 'Exit full screen' : 'Full screen'}">${full ? ICON.shrink : ICON.full}</button>` : ''}`;
+  moveThumb();
+  syncCtl();
   q('.powerslot').innerHTML = powerHtml();
   q('.winslot').innerHTML = phone() ? '' : windowHtml();
   q('.phoneslot').innerHTML = phone() ? windowHtml() : '';
+  const pageKey = `${ui.tab}|${current()?.kind ?? ''}|${current()?.id ?? ''}`;
+  if (pageKey !== lastPage) { lastPage = pageKey; app.querySelector('.win')?.classList.add('enter'); }
   syncScene();
   const now = current();
   if (ui.tab === 'now' && !now?.id) pmFetch([pmSlugs.party, pmSlugs.senate, pmSlugs.house]);
@@ -510,7 +852,7 @@ const render = () => {
   if (openState() && now?.kind === 'state') pmFetch([DATA.markets?.states?.[openState()]]);
   postHeight();
 };
-const setTab = (k) => { ui.tab = k; ui.stack = !phone() ? [{ kind: 'list' }] : []; ui.hover = ''; shownCounties = shownCounties && '\u0000'; hideCard(); render(); buildTags(); paintScene(); moveTags(); };
+const setTab = (k) => { ui.tab = k; ui.when = 'now'; if (k === 'now') { ui.stack = []; openIntro(); } else ui.stack = !phone() ? [{ kind: 'list' }] : []; ui.hover = ''; shownCounties = shownCounties && '\u0000'; hideCard(); render(); buildTags(); paintScene(); moveTags(); };
 let hideTimer = 0;
 const hideCard = () => { clearTimeout(hideTimer); cardKey = ''; q('.card').classList.remove('on'); };
 const show = (page) => { hideCard(); ui.stack = [page]; render(); };
@@ -523,22 +865,26 @@ const followCard = () => {
   q('.card').style.transform = `translate3d(${cardX.toFixed(1)}px, ${cardY.toFixed(1)}px, 0)`;
   if (Math.abs(goalX - cardX) + Math.abs(goalY - cardY) > 0.3) cardFrame = requestAnimationFrame(followCard);
 };
-const placeCard = (x, y, html, key = html) => {
-  if (matchMedia('(hover: none)').matches) return;
+const placeCard = (x, y, html, key = html, force) => {
+  if (!force && matchMedia('(hover: none)').matches) return;
   const stage = q('.stage'), card = q('.card'), box = stage.getBoundingClientRect(), wasOn = card.classList.contains('on');
   clearTimeout(hideTimer);
+  card.classList.toggle('tap', !!force);
   if (key !== cardKey) { cardKey = key; card.innerHTML = html; cardW = card.offsetWidth; cardH = card.offsetHeight; }
   card.classList.add('on');
   const free = box.width - (ui.stack.length && !phone() ? 436 : 0), rx = x - box.left, ry = y - box.top;
   const left = rx + 20 + cardW > free - 8 ? rx - 20 - cardW : rx + 20;
   goalX = Math.max(8, Math.min(left, free - cardW - 8));
   goalY = Math.max(phone() ? 8 : 52, Math.min(ry - 24, box.height - cardH - 8));
+  if (force) { goalX = 8; goalY = box.height - cardH - 6; }
   if (!wasOn) { cardX = goalX; cardY = goalY; }
   if (!cardFrame) cardFrame = requestAnimationFrame(followCard);
 };
 const leaveSoon = () => { clearTimeout(hideTimer); hideTimer = setTimeout(() => { ui.hover = ''; scene?.hover(''); hideCard(); q('canvas.gl').classList.remove('hot'); }, 110); };
 let moveFrame = 0, lastX = 0, lastY = 0;
-let drag = null, dragged = false;
+let drag = null, dragged = false, lastPointer = '';
+const countyCard = (id) => { const open = openState(), geo = window.COUNTYGEO?.[open]?.find((c) => c.id === id), res = countyResult(open, id), people = DATA.pop?.counties?.[id]; return `<div class="title">${esc(geo?.name ?? '')}</div>${people ? `<div class="stats"><span><b>${people.toLocaleString()}</b> people</span></div>` : ''}${res ? `<div class="cardline"><div class="st">${esc(DATA.county[open].race)}</div>${wonBy(res.winner, res.margin_pct)}<div class="st">${esc([res.D && `${res.D.toLocaleString()} Democratic`, res.R && `${res.R.toLocaleString()} Republican`, res.I && `${res.I.toLocaleString()} non-party`].filter(Boolean).join(', '))} votes</div></div>` : ''}`; };
+const countyTap = (id) => { const open = openState(), geo = window.COUNTYGEO?.[open]?.find((c) => c.id === id), res = countyResult(open, id), people = DATA.pop?.counties?.[id]; return `<b>${esc(geo?.name ?? '')}</b>${people ? `<span>${people.toLocaleString()} people</span>` : ''}${res ? `<span class="num" data-p="${res.winner}">${esc(WINNER[res.winner] ?? '')} by ${res.margin_pct.toFixed(1)}%</span>` : ''}`; };
 const hoverAt = () => {
   moveFrame = 0;
   if (drag?.on) return;
@@ -546,9 +892,8 @@ const hoverAt = () => {
   scene.tilt((x - r.left) / r.width - 0.5, (y - r.top) / r.height - 0.5);
   const id = scene.pickCounty(x, y);
   if (id) {
-    const open = openState(), geo = window.COUNTYGEO?.[open]?.find((c) => c.id === id), res = countyResult(open, id), people = DATA.pop?.counties?.[id];
     q('canvas.gl').classList.add('hot');
-    placeCard(x, y, `<div class="title">${esc(geo?.name ?? '')}</div>${people ? `<div class="stats"><span><b>${people.toLocaleString()}</b> people</span></div>` : ''}${res ? resRow(DATA.county[open].race, [res.D && `${res.D.toLocaleString()} D`, res.R && `${res.R.toLocaleString()} R`, res.I && `${res.I.toLocaleString()} non-party`].filter(Boolean).join(', '), res.winner, res.margin_pct) : ''}`, `c${id}`);
+    placeCard(x, y, countyCard(id), `c${id}`);
     return;
   }
   const a = scene.pick(x, y);
@@ -560,7 +905,7 @@ const hoverAt = () => {
 const endDrag = () => { drag = null; q('canvas.gl').classList.remove('dragging'); };
 q('canvas.gl').addEventListener('mousedown', (e) => e.preventDefault());
 q('canvas.gl').addEventListener('pointerdown', (e) => {
-  dragged = false;
+  dragged = false; lastPointer = e.pointerType;
   if (e.pointerType !== 'touch' && e.button === 0 && scene) drag = { id: e.pointerId, x: e.clientX, y: e.clientY, on: false };
 });
 q('canvas.gl').addEventListener('pointerup', endDrag);
@@ -589,13 +934,38 @@ q('canvas.gl').addEventListener('pointermove', (e) => {
 q('canvas.gl').addEventListener('pointerleave', leaveSoon);
 q('canvas.gl').addEventListener('click', (e) => {
   if (dragged) { dragged = false; return; }
-  if (scene?.pickCounty(e.clientX, e.clientY)) return;
+  const tapped = scene?.pickCounty(e.clientX, e.clientY);
+  if (tapped) { if (lastPointer === 'touch') { if (cardKey === `c${tapped}`) hideCard(); else placeCard(e.clientX, e.clientY, countyTap(tapped), `c${tapped}`, true); } return; }
   const a = scene?.pick(e.clientX, e.clientY);
   if (!a) { if (openState()) { ui.stack = []; render(); } return; }
   hideCard();
   if (current()?.kind === 'state' && current().id === a) { ui.stack = []; return render(); }
   show({ kind: 'state', id: a });
 });
+{
+  const cv = q('canvas.gl'), at = (t) => { const r = cv.getBoundingClientRect(); return { x: t.clientX - r.left, y: t.clientY - r.top }; };
+  let g = null;
+  const begin = (list) => { if (list.length >= 2) { const a = at(list[0]), b = at(list[1]); g = { pinch: true, d: Math.hypot(a.x - b.x, a.y - b.y), x: (a.x + b.x) / 2, y: (a.y + b.y) / 2 }; dragged = true; } else if (list.length === 1) { const a = at(list[0]); g = { x: a.x, y: a.y, on: false }; } else g = null; };
+  cv.addEventListener('touchstart', (e) => { if (!scene) return; if (e.touches.length >= 2) e.preventDefault(); begin(e.touches); }, { passive: false });
+  cv.addEventListener('touchmove', (e) => {
+    if (!scene || !g) return;
+    if (g.pinch && e.touches.length >= 2) {
+      e.preventDefault();
+      const a = at(e.touches[0]), b = at(e.touches[1]), d = Math.hypot(a.x - b.x, a.y - b.y), x = (a.x + b.x) / 2, y = (a.y + b.y) / 2;
+      scene.zoomAt(d / (g.d || 1), x, y); scene.pan(x - g.x, y - g.y); Object.assign(g, { d, x, y }); hideCard(); syncReset();
+      return;
+    }
+    const p = at(e.touches[0]), dx = p.x - g.x, dy = p.y - g.y;
+    if (!g.on) { if (Math.hypot(dx, dy) < 6) return; if (scene.zoomLevel() <= 1.01 && Math.abs(dy) > Math.abs(dx)) { g = null; return; } g.on = dragged = true; hideCard(); }
+    if (e.cancelable) e.preventDefault();
+    scene.pan(dx, dy); g.x = p.x; g.y = p.y; syncReset();
+  }, { passive: false });
+  cv.addEventListener('touchend', (e) => begin(e.touches));
+  cv.addEventListener('touchcancel', () => { g = null; });
+  cv.addEventListener('wheel', (e) => { if (!scene || !(e.ctrlKey || e.metaKey)) return; e.preventDefault(); const r = cv.getBoundingClientRect(); scene.zoomAt(Math.exp(-Math.max(-40, Math.min(40, e.deltaY)) * 0.006), e.clientX - r.left, e.clientY - r.top); hideCard(); syncReset(); }, { passive: false });
+}
+app.addEventListener('input', (e) => { if (e.target.closest?.('.finder')) q('.finderlist').innerHTML = finderRows(e.target.value); });
+app.addEventListener('keydown', (e) => { if (e.key === 'Enter' && e.target.closest?.('.finder')) q('.finderlist button')?.click(); });
 app.addEventListener('focusin', (e) => {
   const b = e.target.closest?.('[data-key-state]'); if (!b || !scene) return;
   const s = shape[b.dataset.keyState], p = scene.project(s.cx, s.cy, scene.topOf(s.abbr)), r = q('.stage').getBoundingClientRect();
@@ -604,6 +974,18 @@ app.addEventListener('focusin', (e) => {
 app.addEventListener('focusout', (e) => { if (e.target.closest?.('[data-key-state]')) leaveSoon(); });
 app.addEventListener('click', (e) => {
   const t = e.target; if (!(t instanceof Element) || t.closest('a') || t.matches('canvas.gl')) return;
+  const mw = t.closest('[data-map-when]'); if (mw) return setWhen(mw.dataset.mapWhen);
+  if (t.closest('[data-finder]')) return setFinder(!ui.finder);
+  const zm = t.closest('[data-zoom]'); if (zm && scene) { const c = q('canvas.gl'); scene.zoomAt(zm.dataset.zoom === 'in' ? 1.6 : 1 / 1.6, c.clientWidth / 2, c.clientHeight / 2, true); hideCard(); return syncReset(); }
+  const ts = t.closest('[data-tag-state]'); if (ts) { setFinder(false); return show({ kind: 'state', id: ts.dataset.tagState }); }
+  if (t.closest('[data-intro-close]')) return closeIntro();
+  if (t.closest('[data-intro-next]')) return intro.page < BODIES.length ? introPage(intro.page + 1) : closeIntro();
+  const pg = t.closest('[data-intro-page]'); if (pg) return introPage(Number(pg.dataset.introPage));
+  const wh = t.closest('[data-when]'); if (wh && wh.tagName === 'BUTTON') return introWhen(wh.dataset.when);
+  if (t.closest('[data-intro]')) return openIntro();
+  const go = t.closest('[data-go-state]'); if (go) { closeIntro(); return show({ kind: 'state', id: go.dataset.goState }); }
+  const goP = t.closest('[data-go-official]'); if (goP) { const o = official(goP.dataset.goOfficial); closeIntro(); return show(o?.person ? { kind: 'person', id: o.person } : { kind: 'official', id: goP.dataset.goOfficial }); }
+  if (t.classList.contains('introslot')) return closeIntro();
   const tab = t.closest('[data-tab]'); if (tab) return setTab(tab.dataset.tab);
   if (t.closest('[data-reset]')) { scene?.resetPan(); ui.stack = ui.stack.filter((p) => p.kind !== 'state'); hideCard(); return render(); }
   if (t.closest('[data-list]')) { ui.stack = current()?.kind === 'list' ? [] : [{ kind: 'list' }]; hideCard(); return render(); }
@@ -618,7 +1000,11 @@ app.addEventListener('click', (e) => {
   const st = t.closest('[data-open-state]'); if (st) return push({ kind: 'state', id: st.dataset.openState });
 });
 app.addEventListener('change', (e) => { const f = e.target.dataset?.filter; if (f) { ui[f] = e.target.value; render(); } });
-addEventListener('keydown', (e) => { if (e.key === 'Escape' && ui.stack.length) { ui.stack.pop(); render(); } });
+addEventListener('keydown', (e) => {
+  if (ui.finder && e.key === 'Escape') return setFinder(false);
+  if (intro.on) { if (e.key === 'Escape') closeIntro(); else if (e.key === 'ArrowRight') introPage(Math.min(3, intro.page + 1)); else if (e.key === 'ArrowLeft') introPage(Math.max(0, intro.page - 1)); return; }
+  if (e.key === 'Escape' && ui.stack.length) { ui.stack.pop(); render(); }
+});
 document.addEventListener('fullscreenchange', () => { setLayout(); render(); });
 matchMedia('(prefers-color-scheme: dark)').addEventListener('change', paintScene);
 let viewport = window.parent === window;
@@ -629,13 +1015,219 @@ addEventListener('message', (e) => {
   viewport = true; setLayout(); parent.postMessage({ abstractsLayout: 'viewport' }, '*'); render(); scene?.fit();
 });
 if (window.parent !== window) parent.postMessage({ abstractsLayout: 'request' }, '*');
+const BODIES = [{ k: 'senate', t: 'Senate', about: 'Two from each state. Pass laws and approve judges.', total: 100, tick: true }, { k: 'house', t: 'House', about: 'Seats by population. Pass laws and start spending bills.', total: 435, tick: true }, { k: 'governors', t: 'Governors', about: 'One for each state. Runs the state government.', total: 50, tick: false }];
+const PARTY_WORD = { D: 'Democrats', R: 'Republicans' };
+const pOf = (o) => (o?.party === 'R' ? 'R' : o?.party === 'D' || o?.party === 'I' ? 'D' : 'U');
+const inOffice = (a, re) => (DATA.offices?.[a]?.in_office ?? []).filter((x) => x.g === 'top').map((x) => official(x.id)).filter((o) => o && re.test(o.titles?.[0] ?? ''));
+const SEATS = (() => {
+  const out = { senate: { now: {}, next: {}, flips: [] }, governors: { now: {}, next: {}, flips: [] }, house: { now: {}, next: {} } };
+  for (const { abbr: a, polys } of SHAPES) {
+    if (!polys.length) continue;
+    const m = DATA.midterm?.[a], sens = inOffice(a, /^(U\.S\. )?Senator/), now = sens.map(pOf), next = [...now], w = m?.senate;
+    if (w && !sens.some((o) => last(o.name) === last(w.winner))) {
+      let i = sens.findIndex((o) => o.leaving); if (i < 0) i = next.findIndex((p) => p !== w.party);
+      if (i >= 0) { if (next[i] !== w.party) out.senate.flips.push({ a, out: sens[i], in: findOfficial(a, w.winner) }); next[i] = w.party; }
+    }
+    if (POWER.senate?.uncalled_states?.includes(a)) next[next.indexOf('R') < 0 ? 0 : next.indexOf('R')] = 'U';
+    out.senate.now[a] = now; out.senate.next[a] = next;
+    const g = inOffice(a, /^Governor/)[0], gNow = pOf(g), gw = m?.governor;
+    const gNext = POWER.governors?.uncalled_states?.includes(a) ? 'U' : gw?.party ?? gNow;
+    if (gNext !== 'U' && gNext !== gNow) out.governors.flips.push({ a, out: g, in: findOfficial(a, gw.winner) });
+    out.governors.now[a] = [gNow]; out.governors.next[a] = [gNext];
+    const house = (DATA.offices?.[a]?.in_office ?? []).filter((x) => x.g === 'house').map((x) => official(x.id)?.party);
+    out.house.now[a] = { D: house.filter((p) => p === 'D').length, R: house.filter((p) => p === 'R').length };
+    out.house.next[a] = { D: m?.house?.D ?? 0, R: m?.house?.R ?? 0 };
+  }
+  return out;
+})();
+const mapFill = (k, when, a) => {
+  if (k === 'house') { const { D, R } = SEATS.house[when][a] ?? { D: 0, R: 0 }; return D + R === 0 ? 'U' : D > R ? 'D' : R > D ? 'R' : 'M'; }
+  const list = SEATS[k][when][a] ?? ['U'];
+  return list.includes('U') ? 'U' : list[0] === list.at(-1) ? list[0] : 'M';
+};
+const mapKey = (k) => {
+  const seen = new Set(SHAPES.filter((s) => s.polys.length).map((s) => mapFill(k, intro.when, s.abbr)));
+  return [['M', k === 'house' ? 'Tied' : 'One of each'], ['U', 'Not called']].filter(([c]) => seen.has(c)).map(([c, t]) => `<span><i data-g="${c}"></i>${t}</span>`).join('');
+};
+const mapTip = (k, when, a) => {
+  const name = esc(shape[a].name);
+  if (k === 'house') { const { D, R } = SEATS.house[when][a]; return `${name} &nbsp;<span data-num data-p="D">${D}</span> <span data-num data-p="R">${R}</span>`; }
+  return `${name} ${SEATS[k][when][a].map((p) => `<i data-g="${p}"></i>`).join('')}`;
+};
+const pathOf = (s) => (s.d ??= s.polys.map((p) => p.map((r) => `M${r.map(([x, y]) => `${x} ${y}`).join('L')}Z`).join('')).join(''));
+const mapSvg = (k) => `<svg class="mm" viewBox="-8 -8 991 626" role="img" aria-label="${esc(BODIES.find((b) => b.k === k).t)} by state"><g class="mmtop">${SHAPES.filter((s) => s.polys.length).map((s) => `<g class="mms" data-go-state="${s.abbr}" style="--d:${Math.round((s.cx / 975) * 280)}ms"><path data-c="${mapFill(k, intro.when, s.abbr)}" d="${pathOf(s)}"/></g>`).join('')}</g></svg><div class="ikey mmkey" data-mapkey>${mapKey(k)}</div>`;
+const mapUpdate = (k) => { const page = q('.ipage'); page.querySelectorAll('.mms').forEach((g) => { g.firstElementChild.dataset.c = mapFill(k, intro.when, g.dataset.goState); }); page.querySelector('[data-mapkey]').innerHTML = mapKey(k); };
+const quiet = () => matchMedia('(prefers-reduced-motion: reduce)').matches;
+const seatLayout = (total) => {
+  const rows = total > 200 ? 10 : total > 80 ? 6 : 4, inner = total > 200 ? 0.34 : total > 80 ? 0.4 : 0.46;
+  const radii = Array.from({ length: rows }, (_, i) => inner + ((1 - inner) * i) / (rows - 1)), sum = radii.reduce((t, r) => t + r, 0);
+  let left = total; const seats = [];
+  radii.forEach((r, i) => { const n = i === rows - 1 ? left : Math.round((total * r) / sum); left -= n; for (let j = 0; j < n; j++) { const u = n === 1 ? 0.5 : j / (n - 1), th = Math.PI * (1 - u); seats.push({ x: r * Math.cos(th), y: r * Math.sin(th), u, r, c: null, a: 0, fc: null, fa: 0, delay: 0 }); } });
+  seats.sort((a, b) => a.u - b.u || b.r - a.r);
+  return { seats, dot: ((1 - inner) / (rows - 1)) * 0.32 };
+};
+const makeArc = (canvas, total) => {
+  const { seats, dot } = seatLayout(total), ctx = canvas.getContext('2d');
+  let w = 0, h = 0, radius = 0, sprites = {}, raf = 0, start = 0, dur = 1;
+  const dark = () => matchMedia('(prefers-color-scheme: dark)').matches;
+  const sprite = (hex, r, g) => { const c = document.createElement('canvas'), R = r + g, x = c.getContext('2d'); c.width = c.height = Math.ceil(R * 2); const grad = x.createRadialGradient(R, R, r * 0.5, R, R, R); grad.addColorStop(0, `${hex}${dark() ? '66' : '30'}`); grad.addColorStop(1, `${hex}00`); x.fillStyle = grad; x.fillRect(0, 0, c.width, c.height); x.fillStyle = hex; x.beginPath(); x.arc(R, R, r, 0, 7); x.fill(); return c; };
+  const size = () => {
+    const dpr = Math.min(devicePixelRatio || 1, 2), cw = canvas.clientWidth, ch = canvas.clientHeight; if (!cw) return;
+    w = canvas.width = Math.round(cw * dpr); h = canvas.height = Math.round(ch * dpr);
+    const r0 = Math.max(0.9 * dpr, dot * Math.min(w / 2, h) * 0.92), g = r0 * 0.9 + dpr;
+    radius = Math.min(w / 2, h) - r0 - g * 0.5;
+    sprites = { D: sprite(css('--blue'), r0, g), R: sprite(css('--red'), r0, g), Dq: sprite(css('--blue'), r0, 0.5), Rq: sprite(css('--red'), r0, 0.5), U: sprite(css('--gray'), r0, 0.5) };
+    draw(performance.now());
+  };
+  const draw = (now) => {
+    raf = 0; if (!w) return;
+    const p = quiet() || !dur ? 2 : (now - start) / dur; let live = false;
+    ctx.clearRect(0, 0, w, h);
+    ctx.globalCompositeOperation = dark() ? 'lighter' : 'source-over';
+    const cx = w / 2, base = h - (h - radius) * 0.5 + radius * 0.02;
+    for (const s of seats) {
+      const raw = Math.min(1, Math.max(0, (p - s.delay) / (1 - 0.55)));
+      if (raw < 1) live = true;
+      const t = 1 - (1 - raw) ** 3, x = cx + s.x * radius, y = base - s.y * radius;
+      if (s.fc && t < 1) { const img = sprites[s.fc]; ctx.globalAlpha = s.fa * (1 - t); ctx.drawImage(img, x - img.width / 2, y - img.height / 2); }
+      if (s.c) { const img = sprites[s.c]; ctx.globalAlpha = s.a * t; ctx.drawImage(img, x - img.width / 2, y - img.height / 2); }
+    }
+    ctx.globalAlpha = 1;
+    if (live) raf = requestAnimationFrame(draw);
+  };
+  const set = (pair, first) => {
+    const [D, R] = pair, lead = D > R ? 'D' : R > D ? 'R' : '';
+    seats.forEach((s, i) => {
+      s.fc = s.c; s.fa = s.a;
+      const c = i < D ? 'D' : i >= total - R ? 'R' : 'U', on = !lead || c === lead;
+      s.c = c === 'U' || on ? c : `${c}q`;
+      s.a = c === 'U' ? 0.8 : on ? 1 : 0.62;
+      s.delay = (first ? 1 - Math.abs(2 * s.u - 1) : Math.abs(2 * s.u - 1)) * 0.55;
+    });
+    start = performance.now(); dur = first ? 1100 : 800;
+    if (!raf) raf = requestAnimationFrame(draw);
+  };
+  const seen = new ResizeObserver(size); seen.observe(canvas); size();
+  return { set, destroy() { cancelAnimationFrame(raf); seen.disconnect(); } };
+};
+const tweenNum = (el, to, ms = 700) => {
+  const from = Number(el.dataset.v ?? 0); el.dataset.v = to;
+  if (quiet() || from === to) { el.textContent = to; return; }
+  const start = performance.now();
+  const tick = (now) => { if (!el.isConnected || Number(el.dataset.v) !== to) return; const t = Math.min(1, (now - start) / ms); el.textContent = Math.round(from + (to - from) * (1 - (1 - t) ** 3)); if (t < 1) requestAnimationFrame(tick); };
+  requestAnimationFrame(tick);
+};
+const fullDate = (d) => new Date(`${d}T12:00:00Z`).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric', timeZone: 'UTC' });
+const leadHtml = (when) => {
+  const who = (pair) => (pair[0] > pair[1] ? 'D' : 'R'), pres = (o) => (o?.party?.[0] === 'D' ? 'D' : 'R'), tag = (p) => `<em data-p="${p}">${PARTY_WORD[p]}</em>`;
+  const join = (l) => (l.length > 1 ? `${l.slice(0, -1).join(', ')} and ${l.at(-1)}` : l[0]);
+  const items = [['the White House', pres(POWER.president?.now), pres(POWER.president?.from_january_2027)], ['the Senate', who(POWER.senate.now), who(POWER.senate.next)], ['the House', who(POWER.house.now), who(POWER.house.next)]];
+  if (when === 'now') { const said = ['R', 'D'].map((p) => [p, items.filter((x) => x[1] === p).map((x) => x[0])]).filter(([, l]) => l.length).map(([p, l]) => `${tag(p)} control ${join(l)}`); return `<span>As of ${esc(fullDate(DATA.now?.as_of ?? DATA.updated))},</span> ${said.join(' and ')}.`; }
+  const takes = ['D', 'R'].map((p) => [p, items.filter((x) => x[2] === p && x[1] !== p).map((x) => x[0])]).filter(([, l]) => l.length).map(([p, l]) => `${tag(p)} take ${join(l)}.`);
+  const keeps = ['D', 'R'].map((p) => [p, items.filter((x) => x[2] === p && x[1] === p).map((x) => x[0])]).filter(([, l]) => l.length).map(([p, l]) => `${tag(p)} keep ${join(l)}.`);
+  return `<span>In January,</span> ${[...takes, ...keeps].join(' ')}`;
+};
+const segHtml = () => `<div class="seg" data-when="${intro.when}"><button data-when="now" aria-pressed="${intro.when === 'now'}">Today</button><button data-when="next" aria-pressed="${intro.when === 'next'}">January</button></div>`;
+const numHtml = (k, i) => `<b data-num="${k}:${i}" data-p="${'DR'[i]}">0</b>`;
+const flipsHtml = (k) => (SEATS[k]?.flips ?? []).filter((x) => x.out && x.in).map((x, i) => `<button class="iflip" data-go-state="${x.a}" style="--i:${i}">${face(x.out.id, x.out.name, x.out.party, 24)}<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg>${face(x.in.id, x.in.name, x.in.party, 24)}<span>${esc(shape[x.a].name)}</span></button>`).join('');
+const overviewHtml = () => `
+  <h1 class="ilead" style="--i:0">${leadHtml(intro.when)}</h1>
+  <div class="irow" style="--i:1">${segHtml()}<span class="ikey"><span><i data-g="D"></i>Democrats</span><span><i data-g="R"></i>Republicans</span></span></div>
+  <button class="ipres" data-go-official="US|Donald Trump" style="--i:2">${face('US|Donald Trump', 'Donald Trump', 'R', 44)}<b>Donald Trump</b><span>President</span></button>
+  <div class="icards" style="--i:3">${BODIES.map((b, i) => `<button class="icard" data-intro-page="${i + 1}"><span class="iname">${b.t}</span><canvas data-arc="${b.k}" aria-hidden="true"></canvas><span class="inums">${numHtml(b.k, 0)}${numHtml(b.k, 1)}</span></button>`).join('')}</div>`;
+const detailHtml = (b) => `
+  <div class="itop" style="--i:0"><button class="icon iback" data-intro-page="0" aria-label="Back">${ICON.back}</button><div class="ititle"><h2>${b.t}</h2><p>${b.about}</p></div>${segHtml()}</div>
+  <div class="idetail" style="--i:1"><div class="iside">
+    <div class="iarc"><canvas data-arc="${b.k}" aria-hidden="true"></canvas>${b.tick ? '<span class="itick"></span>' : ''}<span class="imid off" data-mid></span></div>
+    <div class="inum" data-side="D">${numHtml(b.k, 0)}<span>Democrats</span></div><div class="inum" data-side="R">${numHtml(b.k, 1)}<span>Republicans</span></div>
+  </div><div class="imap">${mapSvg(b.k)}</div><div class="iflips off" data-flips></div></div>`;
+const introSync = (first) => {
+  const page = q('.ipage'), b = BODIES[intro.page - 1], w = intro.when;
+  for (const body of BODIES) {
+    const pair = POWER[body.k]?.[w]; if (!pair) continue;
+    intro.arcs.filter((x) => x.k === body.k).forEach((x) => x.arc.set(pair, first));
+    page.querySelectorAll(`[data-num^="${body.k}:"]`).forEach((el) => { const i = Number(el.dataset.num.split(':')[1]); tweenNum(el, pair[i]); el.classList.toggle('low', pair[i] < pair[1 - i]); });
+  }
+  if (b) {
+    const pair = POWER[b.k][w], rest = b.total - pair[0] - pair[1], mid = page.querySelector('[data-mid]'), flips = page.querySelector('[data-flips]');
+    mid.classList.toggle('off', !rest); if (rest) { const ind = b.k === 'house' && w === 'now' ? Object.values(DATA.officials).filter((o) => o.party === 'I' && DATA.offices?.[o.state]?.in_office?.some((x) => x.g === 'house' && x.id === o.id)).length : 0; mid.textContent = w === 'now' ? [ind ? `${ind} independent` : '', rest - ind ? `${rest - ind} vacant` : ''].filter(Boolean).join(', ') : `${rest} not called`; }
+    const html = w === 'next' ? flipsHtml(b.k) : ''; flips.innerHTML = html; flips.classList.toggle('off', !html);
+    if (!first) mapUpdate(b.k);
+  }
+  const share = POWER[b?.k ?? 'house'][w], s = share[0] / (share[0] + share[1]), box = q('.intro');
+  box.style.setProperty('--gd', (0.15 + s * 0.65).toFixed(2)); box.style.setProperty('--gr', (0.15 + (1 - s) * 0.65).toFixed(2));
+};
+const introPage = (n, dir, first) => {
+  if (!intro.on) return;
+  const d = dir ?? Math.sign(n - intro.page), page = q('.ipage');
+  intro.arcs.forEach((x) => x.arc.destroy()); intro.arcs = []; intro.page = n;
+  page.innerHTML = n ? detailHtml(BODIES[n - 1]) : overviewHtml();
+  page.querySelectorAll('canvas[data-arc]').forEach((c) => intro.arcs.push({ k: c.dataset.arc, arc: makeArc(c, BODIES.find((b) => b.k === c.dataset.arc).total) }));
+  q('.intro').querySelectorAll('.dots button').forEach((x, i) => x.setAttribute('aria-current', String(i === n)));
+  q('[data-next-label]').textContent = n < BODIES.length ? 'Next' : 'Map';
+  introSync(true);
+  if (d && !quiet()) page.animate([{ transform: `translateX(${d * 30}px)` }, { transform: 'none' }], { duration: 340, easing: 'cubic-bezier(0.23, 1, 0.32, 1)' });
+  q('.intro').scrollTop = 0;
+  const box = q('.intro');
+  if (phone()) box.style.minHeight = `${Math.max(parseFloat(box.style.minHeight) || 0, box.offsetHeight)}px`;
+  postHeight();
+};
+const introWhen = (w) => {
+  if (w === intro.when) return; intro.when = w;
+  q('.seg').dataset.when = w; q('.seg').querySelectorAll('button').forEach((x) => x.setAttribute('aria-pressed', String(x.dataset.when === w)));
+  const lead = q('.ilead');
+  if (lead) { lead.classList.add('swap'); setTimeout(() => { if (!lead.isConnected) return; lead.innerHTML = leadHtml(w); lead.classList.remove('swap'); }, quiet() ? 0 : 180); }
+  introSync(false);
+  postHeight();
+};
+const introInert = (on) => { for (const s of ['.bar', '.stage', '.phoneslot', '#keys']) { const el = s[0] === '#' ? document.querySelector(s) : q(s); if (el) el.inert = on; } };
+const openIntro = (first) => {
+  if (intro.on || !POWER.senate) return;
+  intro.on = true; intro.when = 'now'; intro.page = 0;
+  clearTimeout(intro.leave); hideCard();
+  const slot = q('.introslot'); slot.hidden = false; slot.classList.remove('leaving'); slot.style.height = '';
+  slot.innerHTML = `<div class="intro" role="dialog" aria-modal="true" aria-label="Overview" tabindex="-1"><button class="icon iclose" data-intro-close aria-label="Close">${ICON.close}</button><div class="ipage"></div><div class="ifoot"><nav class="dots" aria-label="Pages">${['Overview', ...BODIES.map((b) => b.t)].map((t, i) => `<button data-intro-page="${i}" aria-label="${t}"><i></i></button>`).join('')}</nav><button class="go" data-intro-next><span data-next-label>Next</span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button></div><div class="mmtip"></div></div>`;
+  app.classList.add('intro-on'); introInert(true);
+  introPage(0, 0, true); paintScene();
+  if (!first) q('.intro').focus({ preventScroll: true });
+};
+const closeIntro = () => {
+  if (!intro.on) return;
+  intro.on = false;
+  const slot = q('.introslot');
+  ui.when = intro.when;
+  intro.arcs.forEach((x) => x.arc.destroy()); intro.arcs = [];
+  slot.style.height = phone() ? `${slot.offsetHeight}px` : ''; slot.classList.add('leaving');
+  app.classList.remove('intro-on'); introInert(false);
+  paintScene(); buildTags(); render(); moveTags();
+  intro.leave = setTimeout(() => { slot.hidden = true; slot.innerHTML = ''; slot.style.height = ''; postHeight(); }, quiet() ? 0 : 240);
+};
+{
+  const slot = q('.introslot'); let swipe = null;
+  slot.addEventListener('pointerdown', (e) => { if (e.pointerType === 'touch') swipe = { x: e.clientX, y: e.clientY }; });
+  slot.addEventListener('pointerup', (e) => { if (!swipe) return; const dx = e.clientX - swipe.x, dy = e.clientY - swipe.y; swipe = null; if (Math.abs(dx) > 48 && Math.abs(dx) > Math.abs(dy) * 1.5) introPage(Math.max(0, Math.min(3, intro.page + (dx < 0 ? 1 : -1)))); });
+  slot.addEventListener('pointercancel', () => { swipe = null; });
+  slot.addEventListener('pointermove', (e) => {
+    const tip = slot.querySelector('.mmtip'); if (!tip || e.pointerType === 'touch') return;
+    const g = e.target.closest?.('.mms'), b = BODIES[intro.page - 1];
+    if (!g || !b) { tip.classList.remove('on'); return; }
+    const box = slot.querySelector('.intro').getBoundingClientRect();
+    tip.innerHTML = mapTip(b.k, intro.when, g.dataset.goState); tip.classList.add('on');
+    tip.style.transform = `translate(${Math.min(e.clientX - box.left + 14, box.width - tip.offsetWidth - 8)}px, ${e.clientY - box.top + slot.querySelector('.intro').scrollTop - 38}px)`;
+  });
+  slot.addEventListener('pointerleave', () => slot.querySelector('.mmtip')?.classList.remove('on'));
+}
 document.getElementById('keys').innerHTML = SHAPES.map((s) => `<button data-key-state="${s.abbr}">${esc(s.name)}</button>`).join('');
 setLayout();
 try { scene = window.MapScene.create(q('canvas.gl'), SHAPES, moveTags); } catch { q('canvas.gl').remove(); ui.stack = []; }
-let wasPhone = phone(), wasWide = app.clientWidth >= 760, redraw = 0;
-new ResizeObserver(() => { cancelAnimationFrame(redraw); redraw = requestAnimationFrame(() => { const wide = app.clientWidth >= 760; if (wide !== wasWide) { wasWide = wide; buildTags(); } if (phone() !== wasPhone) { wasPhone = phone(); render(); } moveTags(); postHeight(); }); }).observe(document.documentElement);
+let wasPhone = phone(), wasMode = tagMode(), redraw = 0;
+new ResizeObserver(() => { cancelAnimationFrame(redraw); redraw = requestAnimationFrame(() => { if (tagMode() !== wasMode) { wasMode = tagMode(); buildTags(); } if (phone() !== wasPhone) { wasPhone = phone(); render(); } moveTags(); postHeight(); }); }).observe(document.documentElement);
 buildTags(); paintScene(); render(); moveTags();
 if (!scene) { ui.stack = [{ kind: 'list' }]; render(); }
+intro.on = false;
+const hashState = () => { const h = location.hash.slice(1).toUpperCase(); return shape[h] ? h : ''; };
+if (hashState()) show({ kind: 'state', id: hashState() }); else openIntro(true);
+addEventListener('hashchange', () => { const h = hashState(); if (h) { closeIntro(); show({ kind: 'state', id: h }); } });
 </script>
 </body>
 </html>

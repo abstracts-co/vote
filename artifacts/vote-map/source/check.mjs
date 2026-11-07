@@ -26,11 +26,19 @@ for (const p of D.people ?? []) {
   for (const c of p.criticism ?? []) { if (!c.who || !c.source) fail.push(`${p.name}: criticism needs who and source`); text(c.text, p.name); }
   text(p.why?.text, p.name);
 }
+for (const [id, o] of Object.entries(D.officials ?? {})) { if (o.id !== id) fail.push(`${id}: its id field says ${o.id}`); if (o.score && o.est) fail.push(`${id}: has both a measured score and an estimate`); }
+for (const id of Object.keys(D.faces?.map ?? {})) if (!D.officials?.[id] && !D.people?.some((p) => p.name === id)) warn.push(`${id}: a face nobody uses`);
+if (JSON.parse(readFileSync(join(root, 'artifact.json'), 'utf8')).display) fail.push('artifact.json has display: an artifact sits in place, and only a person opens it full screen');
+const built = readFileSync(join(root, 'data.js'), 'utf8');
+if (JSON.stringify(JSON.parse(built.slice(built.indexOf('{'), built.lastIndexOf('}') + 1)).DATA) !== JSON.stringify(D)) fail.push('data.js is out of date: run npm run build');
 const walk = (d) => readdirSync(d, { withFileTypes: true }).flatMap((e) => (e.name === 'node_modules' ? [] : e.isDirectory() ? walk(join(d, e.name)) : [join(d, e.name)]));
 const files = walk(root), total = files.reduce((t, f) => t + statSync(f).size, 0);
 for (const f of files) if (statSync(f).size > 5 * 1024 * 1024) fail.push(`${f}: over 5 MB`);
 if (files.length > 100) fail.push(`${files.length} files, over 100`);
 if (total > 10 * 1024 * 1024) fail.push(`${(total / 1048576).toFixed(1)} MB, over 10 MB`);
+for (const k of ['senate', 'governors']) { const b = D.now?.power?.[k]; if (b && (b.uncalled_states ?? []).length !== (b.uncalled ?? 0)) fail.push(`now.power.${k}: uncalled is ${b.uncalled} but uncalled_states lists ${(b.uncalled_states ?? []).length}`); }
+for (const o of Object.values(D.officials ?? {})) { if (o.bio?.sources) url(o.bio.sources, `officials.${o.id}.bio`); if (o.bio && !o.bio.sources?.length) fail.push(`officials.${o.id}.bio: facts with no source`); }
+{ const h = D.now?.power?.house, sum = { D: 0, R: 0, u: 0 }; for (const m of Object.values(D.midterm ?? {})) { sum.D += m.house?.D ?? 0; sum.R += m.house?.R ?? 0; sum.u += m.house?.uncalled ?? 0; } if (h && (sum.D !== h.next[0] || sum.R !== h.next[1] || sum.u !== (h.uncalled ?? 0))) fail.push(`midterm House totals ${sum.D}, ${sum.R}, ${sum.u} uncalled do not match now.power.house ${h.next[0]}, ${h.next[1]}, ${h.uncalled} uncalled`); }
 const html = readFileSync(join(root, 'index.html'), 'utf8');
 if (/transition:\s*all/.test(html)) fail.push('index.html uses transition: all');
 const A = Object.values(D.officials ?? {}), pct = (n) => `${n} of ${A.length}`;
